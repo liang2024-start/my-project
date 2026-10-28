@@ -1,0 +1,62 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "商家登录",
+        "navigationBarBackgroundColor": "#FF6B35",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/dashboard/dashboard",
+      "style": {
+        "navigationBarTitleText": "商家工作台",
+        "navigationBarBackgroundColor": "#FF6B35",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/order/order-list",
+      "style": {
+        "navigationBarTitleText": "订单管理",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/goods/goods-list",
+      "style": {
+        "navigationBarTitleText": "商品管理",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/goods/goods-edit",
+      "style": {
+        "navigationBarTitleText": "编辑商品",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/profile/profile",
+      "style": {
+        "navigationBarTitleText": "店铺设置",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTextStyle": "black"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "校园送商家后台",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5",
+    "app-plus": {
+      "background": "#efeff4"
+    }
+  },
+  "uniIdRouter": {}
+}

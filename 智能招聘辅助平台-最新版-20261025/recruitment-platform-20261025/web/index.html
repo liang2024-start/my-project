@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星禾数智 · 智能招聘辅助平台</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- ==================== 登录 ==================== -->
+<div id="login-view" class="login-wrap">
+  <div class="login-left">
+    <div class="logo" style="border:none;padding:0;">
+      <div class="mark">星</div>
+      <div style="font-size:18px;">星禾数智 · 智能招聘辅助平台</div>
+    </div>
+    <h1>让招聘每一步<br>都有依据可查</h1>
+    <p>岗位条件由用人部门确认并留痕，AI 逐项对照简历给出原文证据，招聘专员人工决定是否推荐，用人部门反馈直达推荐人——全流程线上化、可追溯。</p>
+    <div class="badges">
+      <span class="badge-item">🚫 AI 不自动淘汰</span>
+      <span class="badge-item">📄 结论附原文证据</span>
+      <span class="badge-item">🔐 岗位维度隔离</span>
+      <span class="badge-item">🧾 全量操作留痕</span>
+    </div>
+    <div class="login-secure">⚠️ 本系统为招聘辅助工具：AI 仅提供初筛参考，任何淘汰与推荐决定均由人工做出并留痕。</div>
+  </div>
+
+  <div class="login-card">
+    <h2>登录</h2>
+    <div class="sub">使用平台账号登录，账号由平台管理员创建与停用</div>
+    <div class="login-error" id="login-error"></div>
+    <form id="login-form">
+      <div class="field">
+        <label>登录账号</label>
+        <input type="text" id="login-account" placeholder="name@xinghe.com 或 11 位手机号" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="login-password" placeholder="请输入登录密码" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" type="submit" id="login-submit">登录</button>
+    </form>
+    <div class="demo-accounts">
+      <div class="t"><span>平台账号（点击仅填入账号）</span><span>密码需手动输入</span></div>
+      <div id="demo-account-list"></div>
+      <div class="form-hint" style="margin-top:6px;">出于账号安全，点击账号不会自动带出密码，也不会直接登录。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 应用 ==================== -->
+<div class="app" id="app-view" hidden>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="mark">星</div>
+      <div>星禾招聘<small>智能招聘辅助平台</small></div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item" data-page="jobs"><span class="ico">📋</span>岗位需求工作台</button>
+      <button class="nav-item" data-page="resumes"><span class="ico">📄</span>简历筛选与核对<span class="badge" id="nav-resume-badge" hidden>0</span></button>
+      <button class="nav-item" data-page="feedback"><span class="ico">💬</span>部门反馈工作台<span class="badge" id="nav-fb-badge" hidden>0</span></button>
+      <button class="nav-item" data-page="dashboard"><span class="ico">📊</span>数据看板与监控</button>
+      <button class="nav-item" data-page="profile"><span class="ico">👤</span>个人中心</button>
+      <button class="nav-item" data-page="admin" id="nav-admin" hidden><span class="ico">⚙️</span>平台管理</button>
+    </nav>
+    <div class="side-foot">
+      数据来自岗位与简历样本<br>
+      合规红线：AI 仅辅助初筛，<b>绝不自动淘汰</b>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="page-title">岗位需求工作台</h1>
+      <div class="spacer"></div>
+      <div class="dd">
+        <button class="bell-btn" id="bell-btn" title="通知">🔔<span class="bell-dot" id="bell-dot" hidden>0</span></button>
+        <div class="panel notif-panel" id="panel-notif"></div>
+      </div>
+      <div class="dd">
+        <button class="account-btn" id="account-btn" title="账号">
+          <span class="avatar" id="acc-avatar">李</span>
+          <span class="acc-txt"><b id="acc-name">—</b><small id="acc-sub">—</small></span>
+          <span class="caret" id="acc-caret">▼</span>
+        </button>
+        <div class="panel account-panel" id="panel-account"></div>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-mask"><div id="modal-box"></div></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+// 此文件仅用于让HBuilderX识别为uniCloud项目
+// 云函数在主项目中上传，rider-admin共用同一个阿里云服务空间

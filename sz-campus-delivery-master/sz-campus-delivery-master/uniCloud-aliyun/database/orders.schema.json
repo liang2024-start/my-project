@@ -1,0 +1,53 @@
+{
+  "bsonType": "object",
+  "required": ["userId", "merchantId", "items", "totalAmount", "deliveryType"],
+  "permission": {
+    "read": "doc.userId == auth.uid || doc.merchantId == auth.uid",
+    "create": "auth.uid != null",
+    "update": "doc.userId == auth.uid || doc.merchantId == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": { "description": "订单ID" },
+    "orderNo": { "bsonType": "string", "title": "订单号" },
+    "userId": { "bsonType": "string", "title": "用户ID" },
+    "userNickName": { "bsonType": "string", "title": "用户昵称" },
+    "userPhone": { "bsonType": "string", "title": "用户手机号" },
+    "merchantId": { "bsonType": "string", "title": "商家ID" },
+    "merchantName": { "bsonType": "string", "title": "商家名称" },
+    "items": {
+      "bsonType": "array",
+      "title": "订单商品列表",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "goodsId": { "bsonType": "string" },
+          "goodsName": { "bsonType": "string" },
+          "goodsImage": { "bsonType": "string" },
+          "price": { "bsonType": "double" },
+          "quantity": { "bsonType": "int" },
+          "spec": { "bsonType": "string" }
+        }
+      }
+    },
+    "totalAmount": { "bsonType": "double", "title": "商品总金额" },
+    "deliveryFee": { "bsonType": "double", "title": "配送费", "defaultValue": 0 },
+    "actualAmount": { "bsonType": "double", "title": "实付金额" },
+    "deliveryType": { "bsonType": "int", "title": "配送方式 1-送到宿舍 2-自取" },
+    "address": { "bsonType": "string", "title": "配送地址（宿舍号）" },
+    "remark": { "bsonType": "string", "title": "备注" },
+    "status": {
+      "bsonType": "int",
+      "title": "订单状态 0-待支付 1-待接单 2-制作中 3-待取餐/配送中 4-已完成 5-已取消",
+      "defaultValue": 0
+    },
+    "payType": { "bsonType": "int", "title": "支付方式 1-微信支付 2-余额" },
+    "payTime": { "bsonType": "timestamp", "title": "支付时间" },
+    "acceptTime": { "bsonType": "timestamp", "title": "接单时间" },
+    "cookFinishTime": { "bsonType": "timestamp", "title": "出餐时间" },
+    "finishTime": { "bsonType": "timestamp", "title": "完成时间" },
+    "cancelTime": { "bsonType": "timestamp", "title": "取消时间" },
+    "cancelReason": { "bsonType": "string", "title": "取消原因" },
+    "createTime": { "bsonType": "timestamp" }
+  }
+}

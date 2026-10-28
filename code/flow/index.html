@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园二手书交易平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/recommendation.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link active">首页</a>
+                <a href="book-list.html" class="nav-link">书籍列表</a>
+                <a href="book-publish.html" class="nav-link">发布书籍</a>
+                <a href="gallery.html" class="nav-link">图片库</a>   <!-- 新增 -->
+                <!-- 消息通知入口 -->
+                <a href="messages.html" class="nav-link message-link">
+                    <span class="message-icon">💬</span>
+                    <span id="headerUnreadBadge" class="unread-badge" style="display: none;">0</span>
+                </a>
+                <!-- 登录状态显示 -->
+                <div id="userStatus" class="user-status">
+                    <span id="usernameDisplay">游客</span>
+                    <button id="loginBtn" class="btn btn-primary">登录</button>
+                    <button id="registerBtn" class="btn btn-secondary">注册</button>
+                    <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- <section class="welcome-section">
+            <div class="container">
+                <h2>欢迎来到校园二手书交易平台</h2>
+                <p>安全、便捷、经济的二手书交易体验</p>
+            </div> -->
+        <!-- </section> -->
+        <!-- 在 welcome-section 部分添加按钮 -->
+        <section class="welcome-section">
+            <div class="container">
+                <h2>欢迎来到校园二手书交易平台</h2>
+                <p>安全、便捷、经济的二手书交易体验</p>
+                <a href="gallery.html" class="btn btn-primary" style="margin-top: 20px; display: inline-block;">查看图片库</a>
+            </div>
+        </section>
+        <!-- 推荐模块 -->
+        <section class="recommendation-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">📊</span>
+                        书籍热榜
+                    </h2>
+                    <a href="book-list.html" class="view-all">
+                        查看全部
+                        <span>→</span>
+                    </a>
+                </div>
+                
+                <div class="recommendation-container">
+                    <!-- 热门浏览榜 -->
+                    <div class="recommendation-column">
+                        <div class="column-header">
+                            <span class="column-icon">🔥</span>
+                            <h3 class="column-title">热门浏览</h3>
+                            <span class="column-subtitle">最近7天</span>
+                        </div>
+                        <div id="hotBooksList" class="book-rank-list">
+                            <div class="recommendation-loading">
+                                <div class="loading-spinner"></div>
+                                <p>正在加载热门书籍...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 畅销成交榜 -->
+                    <div class="recommendation-column">
+                        <div class="column-header">
+                            <span class="column-icon">🏆</span>
+                            <h3 class="column-title">畅销成交</h3>
+                            <span class="column-subtitle">最近7天</span>
+                        </div>
+                        <div id="bestSellerList" class="book-rank-list">
+                            <div class="recommendation-loading">
+                                <div class="loading-spinner"></div>
+                                <p>正在加载畅销书籍...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-notice">
+                    统计时间：最近7天
+                </div>
+            </div>
+        </section>
+        
+        <!-- 登录/注册模态框 -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="authFormContainer">
+                    <!-- 登录表单 -->
+                    <div id="loginForm" class="auth-form">
+                        <h2>用户登录</h2>
+                        <form id="loginFormElement">
+                            <div class="form-group">
+                                <label for="loginUsername">用户名或邮箱</label>
+                                <input type="text" id="loginUsername" name="username" required>
+                                <span class="error-message" id="loginUsernameError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">密码</label>
+                                <input type="password" id="loginPassword" name="password" required>
+                                <span class="error-message" id="loginPasswordError"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" id="rememberMe" name="rememberMe">
+                                <label for="rememberMe">记住我</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">登录</button>
+                            <p class="switch-form">没有账号？<a href="#" id="showRegisterForm">立即注册</a></p>
+                        </form>
+                    </div>
+                    
+                    <!-- 注册表单 -->
+                    <div id="registerForm" class="auth-form" style="display:none;">
+                        <h2>用户注册</h2>
+                        <form id="registerFormElement">
+                            <div class="form-group">
+                                <label for="registerUsername">用户名</label>
+                                <input type="text" id="registerUsername" name="username" required>
+                                <span class="error-message" id="registerUsernameError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerEmail">邮箱</label>
+                                <input type="email" id="registerEmail" name="email" required>
+                                <span class="error-message" id="registerEmailError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerStudentId">学号</label>
+                                <input type="text" id="registerStudentId" name="studentId" required>
+                                <span class="error-message" id="registerStudentIdError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerPassword">密码</label>
+                                <input type="password" id="registerPassword" name="password" required>
+                                <span class="error-message" id="registerPasswordError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerConfirmPassword">确认密码</label>
+                                <input type="password" id="registerConfirmPassword" name="confirmPassword" required>
+                                <span class="error-message" id="registerConfirmPasswordError"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">注册</button>
+                            <p class="switch-form">已有账号？<a href="#" id="showLoginForm">立即登录</a></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 数据可视化模块 -->
+    <section id="data-visualization" class="data-viz-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon">📈</span>
+                    数据统计
+                </h2>
+                <p class="section-subtitle">平台热门书籍类别分布与交易活跃度趋势</p>
+            </div>
+            
+            <div class="charts-grid">
+                <!-- 热门书籍类别分布图 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>热门书籍类别分布</h3>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 交易活跃度趋势图 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>交易活跃度趋势</h3>
+                        <div class="time-filters">
+                            <button class="filter-btn active" data-range="week">近7天</button>
+                            <button class="filter-btn" data-range="day">近24小时</button>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/chart.min.js"></script>
+    <script src="js/user-system.js"></script>
+    <script src="js/book-data.js"></script>
+    <script src="js/recommendation.js"></script>
+    <script src="js/data-visualization.js"></script>
+    <script>
+        // 更新未读消息数
+        function updateUnreadBadge() {
+            const conversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+            const loginStatus = localStorage.getItem('loginStatus') || sessionStorage.getItem('loginStatus');
+            
+            if (!loginStatus) return;
+            
+            const userId = JSON.parse(loginStatus).userId;
+            let total = 0;
+            
+            conversations.forEach(c => {
+                if ((c.buyerId === userId || c.sellerId === userId) && c.unreadCount > 0) {
+                    total += c.unreadCount;
+                }
+            });
+            
+            const badge = document.getElementById('headerUnreadBadge');
+            if (badge) {
+                if (total > 0) {
+                    badge.textContent = total > 99 ? '99+' : total;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        // 页面加载时更新未读消息数
+        document.addEventListener('DOMContentLoaded', updateUnreadBadge);
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片库 - 校园二手书交易平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .gallery-main {
+            background-color: #f5f7fa;
+            padding: 20px 0;
+            min-height: calc(100vh - 140px);
+        }
+
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .module-section {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .module-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .image-item {
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .image-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-caption {
+            padding: 10px;
+            font-size: 14px;
+            color: #1a1a2e;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .image-path {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            padding: 0 10px 10px;
+        }
+
+        .no-images {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+            
+            .image-preview {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="book-list.html" class="nav-link">书籍列表</a>
+                <a href="book-publish.html" class="nav-link">发布书籍</a>
+                <a href="gallery.html" class="nav-link active">图片库</a>
+                <a href="messages.html" class="nav-link message-link">
+                    <span class="message-icon">💬</span>
+                    <span id="headerUnreadBadge" class="unread-badge" style="display: none;">0</span>
+                </a>
+                <div id="userStatus" class="user-status">
+                    <span id="usernameDisplay">游客</span>
+                    <button id="loginBtn" class="btn btn-primary">登录</button>
+                    <button id="registerBtn" class="btn btn-secondary">注册</button>
+                    <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main gallery-main">
+        <div class="container">
+            <h2>图片库</h2>
+            <div class="gallery-container">
+                <!-- 书籍管理模块 -->
+                <div class="module-section">
+                    <h3 class="module-title">书籍管理模块</h3>
+                    <div class="image-grid" id="bookManagementImages">
+                        <!-- 图片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 书籍详情模块 -->
+                <div class="module-section">
+                    <h3 class="module-title">书籍详情模块</h3>
+                    <div class="image-grid" id="bookDetailImages">
+                        <!-- 图片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 消息中心模块 -->
+                <div class="module-section">
+                    <h3 class="module-title">消息中心模块</h3>
+                    <div class="image-grid" id="messageImages">
+                        <!-- 图片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 首页推荐模块 -->
+                <div class="module-section">
+                    <h3 class="module-title">首页推荐模块</h3>
+                    <div class="image-grid" id="homeImages">
+                        <!-- 图片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 其他图片模块 -->
+                <div class="module-section">
+                    <h3 class="module-title">其他图片</h3>
+                    <div class="image-grid" id="otherImages">
+                        <!-- 图片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/user-system.js"></script>
+    <script>
+        // 定义picture文件夹中的实际图片文件
+        const allImages = [
+            "message_1.png",
+            "书籍可视化板块 2026-01-08 150111.png",
+            "搜索与发现模块2026-01-08 150440.png"
+        ];
+
+        // 子文件夹中的图片
+        const bookManagementImages = [
+            "书籍管理模块/book_detail_1.png",
+            "书籍管理模块/book_detail_2.png",
+            "书籍管理模块/book_management_1.png",
+            "书籍管理模块/book_management_4.png"
+        ];
+
+        const userManagementImages = [
+            "用户管理模块/用户管理模块（注册） 2026-01-08 150519.png",
+            "用户管理模块/用户管理模块（登录） 2026-01-08 150548.png"
+        ];
+
+        // 合并所有图片
+        const allPictures = [...allImages, ...bookManagementImages, ...userManagementImages];
+
+        // 根据文件名关键词分类图片
+        function categorizeImages(images) {
+            const categories = {
+                bookManagement: images.filter(img => 
+                    img.toLowerCase().includes('book_management') || 
+                    img.toLowerCase().includes('publish') || 
+                    img.toLowerCase().includes('edit') ||
+                    img.toLowerCase().includes('list') ||
+                    img.toLowerCase().includes('management') ||
+                    img.includes('书籍管理模块')),
+                bookDetail: images.filter(img => 
+                    img.toLowerCase().includes('detail') || 
+                    img.toLowerCase().includes('book_detail') ||
+                    img.includes('book_detail')),
+                message: images.filter(img => 
+                    img.toLowerCase().includes('message') || 
+                    img.toLowerCase().includes('chat') || 
+                    img.toLowerCase().includes('msg') ||
+                    img.includes('message_1')),
+                home: images.filter(img => 
+                    img.toLowerCase().includes('可视化') || 
+                    img.toLowerCase().includes('recommendation') ||
+                    img.toLowerCase().includes('首页') ||
+                    img.includes('书籍可视化板块') ||
+                    img.includes('搜索与发现')),
+                other: images.filter(img => 
+                    !['book_management', 'publish', 'edit', 'list', 'management', '书籍管理模块', 'detail', 'book_detail', 'message', 'chat', 'msg', 'message_1', '可视化', 'recommendation', '首页', '书籍可视化板块', '搜索', '发现', 'search', '搜索与发现'].some(keyword => 
+                        img.toLowerCase().includes(keyword.replace(/['"]+/g, ''))
+                    )
+                )
+            };
+            
+            return categories;
+        }
+
+        // 渲染特定模块的图片
+        function renderModuleImages(moduleId, imageList) {
+            const container = document.getElementById(`${moduleId}Images`);
+            
+            if (imageList.length === 0) {
+                container.innerHTML = '<div class="no-images">暂无图片</div>';
+                return;
+            }
+
+            // 清空现有内容
+            container.innerHTML = '';
+
+            // 添加图片项
+            imageList.forEach(imageFile => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                
+                imageItem.innerHTML = `
+                    <img src="picture/${imageFile}" alt="${imageFile}" class="image-preview" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x150?text=图片不可用'">
+                    <div class="image-caption">${imageFile}</div>
+                    <div class="image-path">picture/${imageFile}</div>
+                `;
+                
+                // 点击放大预览
+                imageItem.addEventListener('click', () => {
+                    showImagePreview(`picture/${imageFile}`, imageFile);
+                });
+                
+                container.appendChild(imageItem);
+            });
+        }
+
+        // 显示图片预览弹窗
+        function showImagePreview(imageSrc, imageName) {
+            // 检查图片是否存在
+            const img = new Image();
+            img.onload = function() {
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+                overlay.style.zIndex = '9999';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.cursor = 'pointer';
+
+                const fullImg = document.createElement('img');
+                fullImg.src = imageSrc;
+                fullImg.style.maxWidth = '90%';
+                fullImg.style.maxHeight = '90%';
+                fullImg.style.objectFit = 'contain';
+                fullImg.alt = imageName;
+
+                const closeBtn = document.createElement('div');
+                closeBtn.innerHTML = '&times;';
+                closeBtn.style.position = 'absolute';
+                closeBtn.style.top = '20px';
+                closeBtn.style.right = '30px';
+                closeBtn.style.color = '#fff';
+                closeBtn.style.fontSize = '40px';
+                closeBtn.style.fontWeight = 'bold';
+                closeBtn.style.cursor = 'pointer';
+
+                closeBtn.addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                });
+
+                overlay.appendChild(fullImg);
+                overlay.appendChild(closeBtn);
+                document.body.appendChild(overlay);
+
+                // 点击背景关闭
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                });
+            };
+            
+            img.onerror = function() {
+                alert("图片 \${imageName} 不存在或无法加载");
+            };
+            
+            img.src = imageSrc;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorizedImages = categorizeImages(allPictures);
+            
+            // 渲染各个模块的图片
+            renderModuleImages('bookManagement', categorizedImages.bookManagement);
+            renderModuleImages('bookDetail', categorizedImages.bookDetail);
+            renderModuleImages('message', categorizedImages.message);
+            renderModuleImages('home', categorizedImages.home);
+            renderModuleImages('other', categorizedImages.other);
+        });
+    </script>
+</body>
+</html>

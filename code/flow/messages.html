@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息中心 - 校园二手书交易平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/messages.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="book-list.html" class="nav-link">书籍列表</a>
+                <a href="book-publish.html" class="nav-link">发布书籍</a>
+                <a href="gallery.html" class="nav-link">图片库</a>
+                <!-- 消息通知入口 -->
+                <a href="messages.html" class="nav-link message-link active">
+                    <span class="message-icon">💬</span>
+                    <span id="headerUnreadBadge" class="unread-badge" style="display: none;">0</span>
+                </a>
+                <!-- 登录状态显示 -->
+                <div id="userStatus" class="user-status">
+                    <span id="usernameDisplay">游客</span>
+                    <button id="loginBtn" class="btn btn-primary">登录</button>
+                    <button id="registerBtn" class="btn btn-secondary">注册</button>
+                    <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main messages-main">
+        <div class="container">
+            <div class="messages-container">
+                <!-- 左侧会话列表 -->
+                <div class="conversations-panel">
+                    <div class="panel-header">
+                        <h2>消息中心</h2>
+                        <button id="newMessageBtn" class="btn btn-primary btn-sm">新建消息</button>
+                    </div>
+                    
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <input type="text" id="conversationSearch" placeholder="搜索会话...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    
+                    <!-- 会话列表 -->
+                    <div id="conversationList" class="conversation-list">
+                        <!-- 会话项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 右侧消息区域 -->
+                <div class="chat-panel">
+                    <!-- 空状态 -->
+                    <div id="emptyChatState" class="empty-chat-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>选择会话开始聊天</h3>
+                        <p>在书籍详情页点击"联系卖家"即可发起会话</p>
+                        <button id="browseBooksBtn" class="btn btn-primary">浏览书籍</button>
+                    </div>
+
+                    <!-- 聊天界面 -->
+                    <div id="chatInterface" class="chat-interface" style="display: none;">
+                        <!-- 聊天头部 -->
+                        <div class="chat-header">
+                            <div class="chat-user-info">
+                                <img id="chatUserAvatar" src="https://via.placeholder.com/40x40?text=头像" alt="用户头像" class="user-avatar">
+                                <div class="user-details">
+                                    <span id="chatUserName" class="user-name">用户名</span>
+                                    <span id="chatBookTitle" class="book-context">书籍名称</span>
+                                </div>
+                            </div>
+                            <div class="chat-actions">
+                                <button id="toggleSafetyTips" class="btn btn-icon" title="安全提示">⚠️</button>
+                                <button id="moreActions" class="btn btn-icon">⋯</button>
+                            </div>
+                        </div>
+
+                        <!-- 安全提示横幅 -->
+                        <div id="safetyBanner" class="safety-banner">
+                            <span class="safety-icon">🛡️</span>
+                            <div class="safety-content">
+                                <strong>安全交易提示</strong>
+                                <p>请通过平台沟通以保障您的权益，线下交易时请选择校园公共场合</p>
+                            </div>
+                            <button class="close-banner">×</button>
+                        </div>
+
+                        <!-- 消息列表 -->
+                        <div id="messageList" class="message-list">
+                            <!-- 消息将通过JavaScript动态生成 -->
+                        </div>
+
+                        <!-- 快捷回复短语 -->
+                        <div id="quickReplies" class="quick-replies" style="display: none;">
+                            <span class="quick-label">快捷回复：</span>
+                            <div class="quick-items">
+                                <button class="quick-reply-btn" data-message="这本书还在吗？">这本书还在吗？</button>
+                                <button class="quick-reply-btn" data-message="可以便宜一点吗？">可以便宜一点吗？</button>
+                                <button class="quick-reply-btn" data-message="在哪里交易比较方便？">在哪里交易？</button>
+                                <button class="quick-reply-btn" data-message="书籍新旧程度怎么样？">书籍新旧程度？</button>
+                            </div>
+                        </div>
+
+                        <!-- 输入区域 -->
+                        <div class="input-area">
+                            <div class="input-toolbar">
+                                <button class="toolbar-btn" title="发送图片">📷</button>
+                                <button class="toolbar-btn" title="快捷回复">💬</button>
+                            </div>
+                            <div class="input-wrapper">
+                                <textarea id="messageInput" placeholder="输入消息...（Ctrl+Enter 发送）" rows="1"></textarea>
+                                <span id="charCount" class="char-count">0/500</span>
+                            </div>
+                            <div class="input-actions">
+                                <span class="draft-indicator" style="display: none;">草稿已保存</span>
+                                <button id="sendBtn" class="btn btn-primary" disabled>发送</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建会话弹窗 -->
+    <div id="newConversationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建会话</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择书籍</label>
+                    <select id="bookSelect" class="form-control">
+                        <option value="">请选择要咨询的书籍</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>首条消息</label>
+                    <textarea id="initialMessage" class="form-control" rows="3" placeholder="输入您要发送的第一条消息..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">取消</button>
+                <button id="startConversationBtn" class="btn btn-primary">发起会话</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统提醒弹窗 -->
+    <div id="systemAlertModal" class="modal" style="display: none;">
+        <div class="modal-content modal-alert">
+            <div class="alert-icon">ℹ️</div>
+            <h3 id="alertTitle">系统提醒</h3>
+            <p id="alertMessage">内容</p>
+            <button class="btn btn-primary alert-confirm">确定</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/user-system.js"></script>
+    <script src="js/book-data.js"></script>
+    <script src="js/messages.js"></script>
+</body>
+</html>

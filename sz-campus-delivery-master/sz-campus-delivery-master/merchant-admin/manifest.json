@@ -1,0 +1,45 @@
+{
+  "name" : "校园送商家后台",
+  "appid" : "__UNI__MERCHANT_ADMIN",
+  "description" : "校园送商家独立管理后台",
+  "versionName" : "1.0.0",
+  "versionCode" : "100",
+  "transformPx" : false,
+  "app-plus" : {
+    "usingComponents" : true,
+    "nvueStyleCompiler" : "uni-app",
+    "compilerVersion" : 3,
+    "splashscreen" : {
+      "alwaysShowBeforeRender" : true,
+      "waiting" : true,
+      "autoclose" : true,
+      "delay" : 0
+    },
+    "distribute" : {
+      "android" : {},
+      "ios" : {},
+      "sdkConfigs" : {}
+    }
+  },
+  "quickapp" : {},
+  "mp-weixin" : {
+    "appid" : "",
+    "setting" : {
+      "urlCheck" : false
+    },
+    "usingComponents" : true
+  },
+  "h5" : {
+    "title" : "校园送商家后台",
+    "router" : {
+      "mode" : "hash"
+    },
+    "devServer" : {
+      "port" : 8081
+    }
+  },
+  "uniStatistics" : {
+    "enable" : false
+  },
+  "vueVersion" : "3"
+}

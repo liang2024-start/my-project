@@ -1,0 +1,17 @@
+{
+  "bsonType": "object",
+  "required": ["merchantId", "name"],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": "auth.uid != null"
+  },
+  "properties": {
+    "_id": {},
+    "merchantId": { "bsonType": "string", "title": "商家ID" },
+    "name": { "bsonType": "string", "title": "分类名称" },
+    "sort": { "bsonType": "int", "title": "排序", "defaultValue": 0 },
+    "createTime": { "bsonType": "timestamp" }
+  }
+}

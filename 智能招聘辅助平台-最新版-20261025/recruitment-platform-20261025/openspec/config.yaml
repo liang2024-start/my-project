@@ -1,0 +1,38 @@
+schema: spec-driven
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+context: |
+  本项目为「智能招聘辅助平台」，依据 PRD V1.0（星禾数智·人事部门）与已评审的 HTML 交互原型开发。
+  所有 OpenSpec 产物（proposal / specs / design / tasks）使用简体中文撰写，代码标识符与文件路径保持英文。
+  合规红线不可协商：AI 只能辅助初筛，不得自动淘汰候选人、不得设分数自动淘汰线、不得自动提交推荐。
+  PRD 中标注 TBD / 待确认（C1–C16）的口径不得固化为业务规则，必须以配置项 + 界面"待确认"标识实现。
+  平台不做飞书排期对接，不做 Offer 生成/审批/发送，仅回录实际结果。
+# Example:
+#   context: |
+#     Designs and tasks must cover Windows, macOS, and Linux
+#     Write all artifacts in Spanish
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

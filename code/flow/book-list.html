@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书籍列表 - 校园二手书交易平台</title>
+    <link rel="stylesheet" href="css\style.css">
+    <link rel="stylesheet" href="css\book-management.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+    <nav class="nav">
+        <a href="index.html" class="nav-link">首页</a>
+        <a href="book-list.html" class="nav-link active">书籍列表</a>
+        <a href="book-publish.html" class="nav-link">发布书籍</a>
+        <a href="gallery.html" class="nav-link">图片库</a>
+        <!-- 消息通知入口 -->
+        <a href="messages.html" class="nav-link message-link">
+            <span class="message-icon">💬</span>
+            <span id="headerUnreadBadge" class="unread-badge" style="display: none;">0</span>
+        </a>
+        <!-- 登录状态显示 -->
+        <div id="userStatus" class="user-status">
+            <span id="usernameDisplay">游客</span>
+            <button id="loginBtn" class="btn btn-primary">登录</button>
+            <button id="registerBtn" class="btn btn-secondary">注册</button>
+            <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+        </div>
+    </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="搜索书籍、作者、ISBN...">
+                    <button id="searchBtn" class="btn btn-primary">搜索</button>
+                </div>
+                
+                <!-- 筛选和排序 -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>分类：</label>
+                        <select id="categoryFilter">
+                            <option value="">全部分类</option>
+                            <option value="教材">教材</option>
+                            <option value="文学">文学</option>
+                            <option value="计算机">计算机</option>
+                            <option value="外语">外语</option>
+                            <option value="艺术">艺术</option>
+                            <option value="经济">经济</option>
+                            <option value="科学">科学</option>
+                            <option value="医学">医学</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>新旧程度：</label>
+                        <select id="conditionFilter">
+                            <option value="">全部</option>
+                            <option value="全新">全新</option>
+                            <option value="几乎全新">几乎全新</option>
+                            <option value="轻微使用痕迹">轻微使用痕迹</option>
+                            <option value="有明显使用痕迹">有明显使用痕迹</option>
+                            <option value="旧书">旧书</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>价格范围：</label>
+                        <select id="priceFilter">
+                            <option value="">全部</option>
+                            <option value="0-20">0-20元</option>
+                            <option value="20-50">20-50元</option>
+                            <option value="50-100">50-100元</option>
+                            <option value="100+">100元以上</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>排序：</label>
+                        <select id="sortFilter">
+                            <option value="latest">最新发布</option>
+                            <option value="price-asc">价格从低到高</option>
+                            <option value="price-desc">价格从高到低</option>
+                            <option value="views">浏览量</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 书籍列表 -->
+            <div id="bookList" class="book-list">
+                <!-- 书籍卡片将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 分页 -->
+            <div id="pagination" class="pagination">
+                <!-- 分页按钮将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/search-discovery.js"></script>
+    <script src="js/book-data.js"></script>
+    <script>
+        // 联系卖家功能
+        function contactSeller(bookId, sellerId) {
+            // 检查登录状态
+            const loginStatus = localStorage.getItem('loginStatus') || sessionStorage.getItem('loginStatus');
+            if (!loginStatus) {
+                alert('请先登录后再联系卖家！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const currentUserId = JSON.parse(loginStatus).userId;
+
+            // 检查是否是自己的书籍
+            if (currentUserId === sellerId) {
+                alert('这是您自己发布的书籍，无法与自己沟通！');
+                return;
+            }
+
+            // 跳转到消息页面
+            window.location.href = `messages.html?bookId=${bookId}&sellerId=${sellerId}`;
+        }
+
+        // 更新未读消息数
+        function updateUnreadBadge() {
+            const conversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+            const loginStatus = localStorage.getItem('loginStatus') || sessionStorage.getItem('loginStatus');
+            
+            if (!loginStatus) return;
+            
+            const userId = JSON.parse(loginStatus).userId;
+            let total = 0;
+            
+            conversations.forEach(c => {
+                if ((c.buyerId === userId || c.sellerId === userId) && c.unreadCount > 0) {
+                    total += c.unreadCount;
+                }
+            });
+            
+            const badge = document.getElementById('headerUnreadBadge');
+            if (badge) {
+                if (total > 0) {
+                    badge.textContent = total > 99 ? '99+' : total;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        // 页面加载时更新未读消息数
+        document.addEventListener('DOMContentLoaded', updateUnreadBadge);
+    </script>
+</body>
+</html>

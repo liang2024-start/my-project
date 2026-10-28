@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书籍详情 - 校园二手书交易平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/book-detail.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="book-list.html" class="nav-link">书籍列表</a>
+                <a href="book-publish.html" class="nav-link">发布书籍</a>
+                <a href="gallery.html" class="nav-link">图片库</a>
+                <!-- 消息通知入口 -->
+                <a href="messages.html" class="nav-link message-link">
+                    <span class="message-icon">💬</span>
+                    <span id="headerUnreadBadge" class="unread-badge" style="display: none;">0</span>
+                </a>
+                <!-- 登录状态显示 -->
+                <div id="userStatus" class="user-status">
+                    <span id="usernameDisplay">游客</span>
+                    <button id="loginBtn" class="btn btn-primary">登录</button>
+                    <button id="registerBtn" class="btn btn-secondary">注册</button>
+                    <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main book-detail-main">
+        <div class="container">
+            <!-- 返回按钮 -->
+            <div class="back-nav">
+                <a href="book-list.html" class="back-link">
+                    <span class="back-icon">←</span>
+                    返回书籍列表
+                </a>
+            </div>
+
+            <!-- 书籍详情容器 -->
+            <div class="book-detail-container" id="bookDetailContainer">
+                <!-- 加载状态 -->
+                <div id="loadingState" class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>加载中...</p>
+                </div>
+
+                <!-- 错误状态 -->
+                <div id="errorState" class="error-state" style="display: none;">
+                    <div class="error-icon">📚</div>
+                    <h2>书籍不存在</h2>
+                    <p>您访问的书籍可能已被删除或不存在</p>
+                    <a href="book-list.html" class="btn btn-primary">返回书籍列表</a>
+                </div>
+
+                <!-- 书籍详情内容 -->
+                <div id="bookContent" class="book-content" style="display: none;">
+                    <div class="book-layout">
+                        <!-- 左侧：书籍图片 -->
+                        <div class="book-gallery">
+                            <div class="main-image-container">
+                                <img id="bookCover" src="" alt="书籍封面" class="main-image">
+                                <span id="conditionBadge" class="condition-badge-large"></span>
+                            </div>
+                            <div class="image-thumbnails" id="imageThumbnails">
+                                <!-- 缩略图将通过JS生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 右侧：书籍信息 -->
+                        <div class="book-info-section">
+                            <!-- 基本信息 -->
+                            <div class="info-card basic-info">
+                                <h1 id="bookTitle" class="book-title"></h1>
+                                
+                                <div class="price-section">
+                                    <span id="bookPrice" class="book-price"></span>
+                                    <span id="originalPrice" class="original-price"></span>
+                                </div>
+
+                                <div class="meta-tags" id="metaTags">
+                                    <!-- 元数据标签将通过JS生成 -->
+                                </div>
+
+                                <div class="book-meta-table" id="bookMetaTable">
+                                    <!-- 书籍元数据表将通过JS生成 -->
+                                </div>
+                            </div>
+
+                            <!-- 卖家信息 -->
+                            <div class="info-card seller-info" id="sellerInfoCard">
+                                <h3 class="section-title">卖家信息</h3>
+                                <div class="seller-details">
+                                    <img id="sellerAvatar" src="" alt="卖家头像" class="seller-avatar">
+                                    <div class="seller-text">
+                                        <div class="seller-name-row">
+                                            <span id="sellerName" class="seller-name"></span>
+                                            <span id="sellerVerified" class="verified-badge"></span>
+                                        </div>
+                                        <p id="sellerBio" class="seller-bio"></p>
+                                    </div>
+                                </div>
+                                <div class="seller-stats" id="sellerStats">
+                                    <!-- 卖家统计数据将通过JS生成 -->
+                                </div>
+                            </div>
+
+                            <!-- 安全提示 -->
+                            <div class="safety-reminder">
+                                <div class="safety-icon">🛡️</div>
+                                <div class="safety-content">
+                                    <h4>安全交易提示</h4>
+                                    <ul>
+                                        <li>建议在校内公共场合进行交易</li>
+                                        <li>请通过平台站内信沟通保留记录</li>
+                                        <li>切勿直接转账给陌生人</li>
+                                        <li>交易前仔细检查书籍状况</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 操作按钮 -->
+                            <div class="action-buttons" id="actionButtons">
+                                <button id="favoriteBtn" class="btn btn-outline favorite-btn">
+                                    <span class="btn-icon">♡</span>
+                                    <span class="btn-text">收藏</span>
+                                </button>
+                                <button id="shareBtn" class="btn btn-outline share-btn">
+                                    <span class="btn-icon">📤</span>
+                                    <span class="btn-text">分享</span>
+                                </button>
+                            </div>
+
+                            <!-- 联系卖家按钮 -->
+                            <div class="contact-actions" id="contactActions">
+                                <button id="contactSellerBtn" class="btn btn-primary btn-large contact-btn">
+                                    <span class="btn-icon">💬</span>
+                                    联系卖家
+                                </button>
+                            </div>
+
+                            <!-- 编辑按钮（仅卖家可见） -->
+                            <div class="edit-actions" id="editActions" style="display: none;">
+                                <button id="editBookBtn" class="btn btn-primary btn-large">
+                                    <span class="btn-icon">✏️</span>
+                                    编辑书籍
+                                </button>
+                                <button id="deleteBookBtn" class="btn btn-danger btn-large">
+                                    <span class="btn-icon">🗑️</span>
+                                    删除书籍
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 详细描述 -->
+                    <div class="description-section">
+                        <h3 class="section-title">书籍详情</h3>
+                        <div class="description-content" id="descriptionContent">
+                            <!-- 描述内容将通过JS生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 交易方式 -->
+                    <div class="transaction-section">
+                        <h3 class="section-title">交易方式</h3>
+                        <div class="transaction-methods" id="transactionMethods">
+                            <!-- 交易方式将通过JS生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 相关推荐 -->
+                    <div class="recommendations-section" id="recommendationsSection">
+                        <h3 class="section-title">相关推荐</h3>
+                        <div class="recommendation-grid" id="recommendationGrid">
+                            <!-- 推荐书籍将通过JS生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 同卖家其他书籍 -->
+                    <div class="more-from-seller" id="moreFromSeller">
+                        <h3 class="section-title">该卖家其他书籍</h3>
+                        <div class="seller-books-grid" id="sellerBooksGrid">
+                            <!-- 卖家其他书籍将通过JS生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 分享弹窗 -->
+    <div id="shareModal" class="modal" style="display: none;">
+        <div class="modal-content share-modal">
+            <div class="modal-header">
+                <h3>分享书籍</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="share-link-label">书籍链接</p>
+                <div class="share-link-box">
+                    <input type="text" id="shareLink" readonly class="form-control">
+                    <button id="copyLinkBtn" class="btn btn-primary">复制链接</button>
+                </div>
+                <div class="share-qrcode">
+                    <div id="qrcodePlaceholder" class="qrcode-placeholder">
+                        <span>📱</span>
+                        <p>扫码分享</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统提醒弹窗 -->
+    <div id="alertModal" class="modal" style="display: none;">
+        <div class="modal-content modal-alert">
+            <div class="alert-icon">ℹ️</div>
+            <h3 id="alertTitle">系统提醒</h3>
+            <p id="alertMessage">内容</p>
+            <button class="btn btn-primary alert-confirm">确定</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/user-system.js"></script>
+    <script src="js/book-data.js"></script>
+    <script src="js/book-detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="docx-page-size" content="A4">
+<title>海鲜自助餐厅系统项目设计文档</title>
+<style>
+  :root {
+    --color-primary: #0d47a1;
+    --color-text: #000000;
+    --color-muted: #666666;
+    --color-border: #cccccc;
+    --color-bg: #ffffff;
+    --color-highlight: #f5f7fa;
+    --fs-h1: 22pt;
+    --fs-h2: 16pt;
+    --fs-h3: 13pt;
+    --fs-body: 12pt;
+    --fs-small: 10pt;
+    --ff-heading: "黑体", SimHei, sans-serif;
+    --ff-body: "宋体", SimSun, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "宋体", SimSun, serif; font-size: 12pt; line-height: 1.5; color: #000000; background: #ffffff; }
+  p { margin-bottom: 0.8em; text-indent: 2em; }
+  p.no-indent, li p { text-indent: 0; }
+  ul, ol { padding-left: 2em; margin-bottom: 0.8em; }
+  li { margin-bottom: 0.3em; text-indent: 0; }
+  h1, h2, h3 { font-family: "黑体", SimHei, sans-serif; font-weight: bold; line-height: 1.2; margin-top: 1.6em; margin-bottom: 0.8em; text-indent: 0; }
+  h1 { font-size: 22pt; color: #0d47a1; }
+  h2 { font-size: 16pt; color: #1565c0; }
+  h3 { font-size: 13pt; color: #333333; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0 1.2em 0; font-size: 10.5pt; }
+  th, td { padding: 0.45em 0.7em; border: 1px solid #cccccc; text-align: left; vertical-align: top; }
+  th { font-weight: bold; background: #e8eef7; font-family: "黑体", SimHei, sans-serif; }
+  code { font-family: Consolas, monospace; font-size: 10.5pt; background: #f5f5f5; padding: 0 3px; }
+  pre { font-family: Consolas, monospace; font-size: 9.5pt; background: #f5f7fa; border: 1px solid #d8dee6; padding: 0.8em; margin: 0.8em 0; white-space: pre-wrap; text-indent: 0; line-height: 1.25; }
+  pre code { background: none; padding: 0; }
+  .src-note { font-size: 10pt; color: #666666; background: #f5f7fa; padding: 0.6em 1em; text-indent: 0; }
+  .warn { font-size: 10.5pt; color: #8a4b00; background: #fdf3e6; border-left: 3px solid #e08c00; padding: 0.6em 1em; text-indent: 0; }
+  /* 页面规则（页眉页脚模型） */
+  @page { @bottom-center { content: "第 " counter(page) " 页"; } }
+  @page coverpage { @bottom-center { content: none; } }
+  section[role="cover"] { page: coverpage; }
+  .toc-list, .toc-list ol, .toc-list ul { list-style: none; list-style-type: none; padding-left: 1.5em; }
+  .toc-list li { margin-bottom: 0.25em; text-indent: 0; }
+  .toc-list a { color: #0d47a1; text-decoration: none; }
+  .toc-title { font-family: "黑体", SimHei, sans-serif; font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 1em; text-indent: 0; }
+</style>
+</head>
+<body>
+
+<section role="cover">
+  <p class="no-indent" style="text-align:center; margin-top:180pt; font-family:'黑体', SimHei, sans-serif; font-size:32pt; font-weight:bold; color:#0d47a1;">海鲜自助餐厅系统</p>
+  <p class="no-indent" style="text-align:center; margin-top:24pt; font-family:'黑体', SimHei, sans-serif; font-size:22pt; font-weight:bold; color:#333333;">项目设计文档</p>
+  <p class="no-indent" style="text-align:center; margin-top:48pt; font-size:12pt; color:#666666;">项目名：zizhuchanting（海鲜自助餐厅系统）</p>
+  <p class="no-indent" style="text-align:center; font-size:12pt; color:#666666;">文档版本：v1.0（2026-10-27）</p>
+  <p class="no-indent" style="text-align:center; font-size:12pt; color:#666666;">适用代码版本：当前仓库 D:\zizhuchanting</p>
+</section>
+
+<section role="cover">
+  <nav class="doc-toc" aria-label="文档目录">
+    <p class="toc-title">目 录</p>
+    <ol class="toc-list">
+      <li><a href="#section-1">1. 项目概述</a></li>
+      <li><a href="#section-2">2. 技术选型</a></li>
+      <li><a href="#section-3">3. 系统总体架构</a></li>
+      <li><a href="#section-4">4. 角色与权限设计</a></li>
+      <li><a href="#section-5">5. 数据库设计</a></li>
+      <li><a href="#section-6">6. 接口设计</a></li>
+      <li><a href="#section-7">7. 核心业务流程设计</a></li>
+      <li><a href="#section-8">8. 前端设计</a></li>
+      <li><a href="#section-9">9. 部署设计</a></li>
+      <li><a href="#section-10">10. 设计评价与改进建议</a></li>
+    </ol>
+  </nav>
+</section>
+
+<section data-page-restart="1">
+  <h1 id="section-1">1. 项目概述</h1>
+  <p>本系统是一个基于 SSM（Spring + SpringMVC + MyBatis-Plus）+ Vue2 的海鲜自助餐厅管理系统，采用前后端分离架构：</p>
+  <ul>
+    <li><b>后端</b>：Java WAR 工程，提供 REST 风格 JSON 接口，负责业务逻辑与数据持久化；</li>
+    <li><b>前端</b>：Vue2 + Element-UI 单页应用（SPA），已预构建为静态资源（admin/dist），由 Tomcat 一并托管；</li>
+    <li><b>业务范围</b>：顾客注册登录、预订餐桌、浏览海鲜菜品、点餐下单、支付结账；管理员对用户、库存、海鲜菜品、餐桌、订单流水进行统一管理。</li>
+  </ul>
+  <h2 id="section-1-1">1.1 系统角色</h2>
+  <table>
+    <tr><th>角色</th><th>账号存储表</th><th>职责</th></tr>
+    <tr><td>管理员</td><td>users</td><td>全部管理功能：用户、库存、海鲜菜品、餐桌、订单流水</td></tr>
+    <tr><td>用户（顾客）</td><td>yonghu</td><td>预订餐桌、点餐、查看并支付自己的订单</td></tr>
+  </table>
+
+  <h1 id="section-2">2. 技术选型</h1>
+  <table>
+    <tr><th>层次</th><th>技术</th><th>版本</th><th>说明</th></tr>
+    <tr><td>运行环境</td><td>JDK</td><td>1.8</td><td>本机路径 C:\Jemeter\JDK1.8</td></tr>
+    <tr><td>Web 容器</td><td>Apache Tomcat</td><td>9.0.29</td><td>本机路径 D:\apache-tomcat-9.0.29，端口 8080</td></tr>
+    <tr><td>IoC/MVC</td><td>Spring / SpringMVC</td><td>5.0.0.RELEASE</td><td>XML 配置（spring.xml、spring-mvc.xml、spring-mybatis.xml）</td></tr>
+    <tr><td>ORM</td><td>MyBatis-Plus</td><td>2.3</td><td>通用 CRUD + 分页插件 + EntityWrapper 条件构造</td></tr>
+    <tr><td>连接池</td><td>Druid</td><td>1.1.0</td><td>带监控 SQL 合并（mergeStat filter）</td></tr>
+    <tr><td>数据库</td><td>MySQL</td><td>8.0.26</td><td>库名 zizhuchanting，字符集 utf8</td></tr>
+    <tr><td>JDBC 驱动</td><td>mysql-connector-java</td><td>8.0.28</td><td>原项目 5.1.38 与 MySQL 8 认证插件不兼容，已升级</td></tr>
+    <tr><td>JSON</td><td>fastjson / Jackson</td><td>1.2.8 / 2.10.1</td><td>接口返回统一使用 fastjson 序列化</td></tr>
+    <tr><td>前端框架</td><td>Vue 2.6 + Element-UI 2.13</td><td>—</td><td>vue-cli 4 构建，hash 路由</td></tr>
+    <tr><td>其他</td><td>axios、echarts 4、commons-fileupload、hutool、百度 AI SDK</td><td>—</td><td>人脸识别能力未启用</td></tr>
+  </table>
+
+  <h1 id="section-3">3. 系统总体架构</h1>
+  <pre>┌────────────────────────────────────────────────────────────┐
+│                      浏览器（用户/管理员）                    │
+│        Vue2 SPA（admin/dist，hash 路由，axios 请求）          │
+└───────────────┬────────────────────────────────────────────┘
+                │ HTTP :8080/zizhuchanting/
+┌───────────────▼────────────────────────────────────────────┐
+│                    Tomcat 9.0.29（WAR 部署）                 │
+│   web.xml：编码过滤器 UTF-8 / DispatcherServlet "/"          │
+│   AuthorizationInterceptor（Token 鉴权，放行 @IgnoreAuth）    │
+│   Controller 层（com.controller，@RestController）           │
+│   Service 层（com.service，AOP 声明式事务）                   │
+│   DAO 层（com.dao + mapper/*.xml，MyBatis-Plus）             │
+│   Druid 连接池                                              │
+└───────────────┬────────────────────────────────────────────┘
+                │ JDBC（127.0.0.1:3306）
+       ┌────────▼────────┐
+       │  MySQL 8.0.26   │
+       │ zizhuchanting 库 │
+       └─────────────────┘</pre>
+  <h2 id="section-3-1">3.1 包结构</h2>
+  <table>
+    <tr><th>包</th><th>职责</th></tr>
+    <tr><td>com.annotation</td><td>自定义注解：@IgnoreAuth（免鉴权）、@LoginUser、@APPLoginUser</td></tr>
+    <tr><td>com.config</td><td>MyMetaObjectHandler（字段自动填充）</td></tr>
+    <tr><td>com.controller</td><td>控制器（REST 接口入口）</td></tr>
+    <tr><td>com.dao</td><td>MyBatis-Plus Mapper 接口</td></tr>
+    <tr><td>com.entity</td><td>实体类（entity / vo / view / model 四套）</td></tr>
+    <tr><td>com.interceptor</td><td>AuthorizationInterceptor 登录拦截器</td></tr>
+    <tr><td>com.model.enums</td><td>TypeEnum 枚举</td></tr>
+    <tr><td>com.service(.impl)</td><td>业务逻辑层</td></tr>
+    <tr><td>com.utils</td><td>R 统一返回、PageUtils、MPUtil、FileUtil、BaiduUtil 等</td></tr>
+  </table>
+  <h2 id="section-3-2">3.2 关键配置文件</h2>
+  <table>
+    <tr><th>文件</th><th>作用</th></tr>
+    <tr><td>src/main/resources/config.properties</td><td>数据库连接（jdbc_url / username / password）、validationQuery</td></tr>
+    <tr><td>spring/spring.xml</td><td>属性占位符、扫描 com.service、引入 spring-mybatis.xml</td></tr>
+    <tr><td>spring/spring-mvc.xml</td><td>扫描 com.controller、注解驱动、静态资源映射 /resources/**、注册鉴权拦截器、上传大小限制（31MB）</td></tr>
+    <tr><td>spring/spring-mybatis.xml</td><td>Druid 数据源、SqlSessionFactory（分页插件）、Mapper 扫描 com.dao、声明式事务</td></tr>
+    <tr><td>mapper/*.xml</td><td>各实体的自定义 SQL（视图查询等）</td></tr>
+    <tr><td>log4j.properties</td><td>日志输出配置</td></tr>
+    <tr><td>WEB-INF/web.xml</td><td>编码过滤器、Spring 监听器、DispatcherServlet、/upload/* 静态直通</td></tr>
+  </table>
+
+  <h1 id="section-4">4. 角色与权限设计</h1>
+  <p>系统采用<b>双账号表</b>设计，而非单表角色字段：管理员存于 users 表（内置 admin/admin）；顾客存于 yonghu 表（可自助注册）。</p>
+  <p>登录时前端传入 role（管理员/用户），后端校验账号所属表与 role 一致后签发 Token，写入 token 表（<b>有效期 1 小时</b>，过期需重新登录）。前端菜单由 src/utils/menu.js 按 roleName 静态配置：</p>
+  <table>
+    <tr><th>角色</th><th>可见菜单</th><th>可执行操作</th></tr>
+    <tr><td>管理员</td><td>用户管理、食物库存管理、海鲜展示管理、未预定餐桌管理、已预定餐桌管理、流水管理</td><td>各模块增/删/改/查；流水可改</td></tr>
+    <tr><td>用户</td><td>海鲜展示管理（点餐）、未预定餐桌管理（预订）、已预定餐桌管理、订单管理</td><td>查看、点餐、预订、支付</td></tr>
+  </table>
+  <p class="src-note">注意：后端接口层面未做细粒度角色校验（仅凭 Token 是否存在），权限控制主要依赖前端菜单收敛。</p>
+
+  <h1 id="section-5">5. 数据库设计</h1>
+  <p>数据库名 zizhuchanting，字符集 utf8，共 <b>11 张表</b>。</p>
+  <h2 id="section-5-1">5.1 ER 关系（文字描述）</h2>
+  <pre>users(管理员) ──登录──> token ──鉴权──> 所有业务接口
+yonghu(顾客)  ──1:N──> yudingcanzhuo(预订) ──N:1──> canzhuo(餐桌)
+yonghu       ──1:N──> liushui(订单流水) ──N:1──> canzhuo(餐桌)
+liushui      ──1:N──> dingdanxiangqing(订单明细)
+kuchuen(库存) ──id 即海鲜类型 hx_types──> haixian(海鲜菜品)
+dictionary(字典)：sex_types(性别 1男/2女)、sf_types(是否 1是/2否)
+config(配置)：轮播图 picture1~5、homepage 等</pre>
+  <p class="src-note">注意：表中 cz_types（餐桌）、yh_types（用户）、hx_types（海鲜）均为 tinyint 逻辑外键，未建物理外键约束，靠业务代码保证一致性。</p>
+
+  <h2 id="section-5-2">5.2 表结构明细</h2>
+  <h3 id="section-5-2-1">5.2.1 users — 管理员表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>username</td><td>varchar(100)</td><td>用户名</td></tr>
+    <tr><td>password</td><td>varchar(100)</td><td>密码（明文存储）</td></tr>
+    <tr><td>role</td><td>varchar(100)</td><td>角色，默认"管理员"</td></tr>
+    <tr><td>addtime</td><td>timestamp</td><td>创建时间</td></tr>
+  </table>
+  <h3 id="section-5-2-2">5.2.2 yonghu — 顾客表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>name</td><td>varchar(200)</td><td>姓名</td></tr>
+    <tr><td>username / password</td><td>varchar(255)</td><td>账号 / 密码（明文）</td></tr>
+    <tr><td>img_photo</td><td>varchar(255)</td><td>头像 URL</td></tr>
+    <tr><td>sex_types</td><td>tinyint</td><td>性别（字典 sex_types：1男 2女）</td></tr>
+    <tr><td>phone</td><td>varchar(200)</td><td>手机号</td></tr>
+    <tr><td>role</td><td>varchar(255)</td><td>身份，"用户"</td></tr>
+  </table>
+  <h3 id="section-5-2-3">5.2.3 canzhuo — 餐桌表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键（同时作为餐桌编号）</td></tr>
+    <tr><td>name</td><td>varchar(200)</td><td>餐桌名称，如"1号餐桌"</td></tr>
+    <tr><td>tableLocation</td><td>varchar(200)</td><td>餐桌位置</td></tr>
+    <tr><td>sf_types</td><td>tinyint</td><td>是否已预订（1已预订 / 2未预订）</td></tr>
+  </table>
+  <h3 id="section-5-2-4">5.2.4 yudingcanzhuo — 预订餐桌表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>cz_types</td><td>tinyint</td><td>餐桌 id（关联 canzhuo.id）</td></tr>
+    <tr><td>yh_types</td><td>tinyint</td><td>预订用户 id（关联 yonghu.id）</td></tr>
+    <tr><td>create_time</td><td>timestamp</td><td>预订时间</td></tr>
+  </table>
+  <h3 id="section-5-2-5">5.2.5 kuchuen — 食物库存表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键；<b>同时被当作海鲜类型编码 hx_types 使用</b></td></tr>
+    <tr><td>name</td><td>varchar(200)</td><td>海鲜名称</td></tr>
+    <tr><td>number</td><td>int(4)</td><td>库存数量</td></tr>
+  </table>
+  <h3 id="section-5-2-6">5.2.6 haixian — 海鲜菜品表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>hx_types</td><td>tinyint</td><td>海鲜名称（逻辑关联 kuchuen.id）</td></tr>
+    <tr><td>money</td><td>decimal(10,2)</td><td>单价</td></tr>
+    <tr><td>img_photo</td><td>varchar(200)</td><td>图片 URL</td></tr>
+    <tr><td>haixian_content</td><td>varchar(200)</td><td>描述（富文本 HTML）</td></tr>
+  </table>
+  <h3 id="section-5-2-7">5.2.7 dingdanxiangqing — 订单明细表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>odd</td><td>varchar(200)</td><td>订单号（毫秒时间戳字符串）</td></tr>
+    <tr><td>hx_types</td><td>tinyint</td><td>海鲜名称（kuchuen.id）</td></tr>
+    <tr><td>number</td><td>int(4)</td><td>数量</td></tr>
+    <tr><td>money</td><td>decimal(10,2)</td><td>单价</td></tr>
+  </table>
+  <h3 id="section-5-2-8">5.2.8 liushui — 订单流水表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>odd</td><td>varchar(200)</td><td>订单号</td></tr>
+    <tr><td>cz_types</td><td>tinyint</td><td>餐桌 id</td></tr>
+    <tr><td>yh_types</td><td>tinyint</td><td>下单用户 id</td></tr>
+    <tr><td>sf_types</td><td>tinyint</td><td>是否支付（1已支付 / 2未支付）</td></tr>
+    <tr><td>maxMoney</td><td>decimal(10,2)</td><td>订单总价</td></tr>
+    <tr><td>create_time</td><td>timestamp</td><td>支付/下单时间</td></tr>
+  </table>
+  <h3 id="section-5-2-9">5.2.9 token — 登录令牌表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>userid / username / tablename / role</td><td>—</td><td>令牌归属者信息</td></tr>
+    <tr><td>token</td><td>varchar(200)</td><td>32 位随机字符串</td></tr>
+    <tr><td>addtime / expiratedtime</td><td>timestamp</td><td>签发 / 过期时间（1 小时）</td></tr>
+  </table>
+  <h3 id="section-5-2-10">5.2.10 dictionary — 字典表</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td>id</td><td>int(20) PK 自增</td><td>主键</td></tr>
+    <tr><td>dic_code / dic_name</td><td>varchar(200)</td><td>字典编码 / 名称</td></tr>
+    <tr><td>code_index</td><td>tinyint</td><td>编码值</td></tr>
+    <tr><td>index_name</td><td>varchar(200)</td><td>编码显示名</td></tr>
+    <tr><td>super_id / create_time</td><td>—</td><td>父级 / 创建时间</td></tr>
+  </table>
+  <p>现有数据：sex_types（1男、2女）、sf_types（1是、2否）。</p>
+  <h3 id="section-5-2-11">5.2.11 config — 系统配置表</h3>
+  <p>键值对存储：picture1~5（轮播图）、homepage（首页图）等。注意当前数据中的图片 URL 指向旧项目路径 fd-ssmj，需按实际部署改写。</p>
+
+  <h1 id="section-6">6. 接口设计</h1>
+  <h2 id="section-6-1">6.1 通用约定</h2>
+  <ul>
+    <li><b>Base URL</b>：http://localhost:8080/zizhuchanting/</li>
+    <li><b>返回结构</b>（com.utils.R）：{"code":0,"msg":"success",...}；code=0 成功，非 0 失败（401 未登录、500 业务异常、511 数据重复等）。</li>
+    <li><b>鉴权</b>：除标注 @IgnoreAuth 的接口外，均需请求头 Token；缺失或过期返回 401"请先登录"。</li>
+    <li><b>分页</b>：GET /xxx/page?page=1&amp;limit=10，返回 data.total / data.list。</li>
+    <li><b>CORS</b>：拦截器统一设置 Access-Control-Allow-* 响应头。</li>
+  </ul>
+  <h2 id="section-6-2">6.2 登录与通用接口</h2>
+  <table>
+    <tr><th>接口</th><th>方法</th><th>鉴权</th><th>说明</th></tr>
+    <tr><td>/users/login</td><td>POST</td><td>免</td><td>管理员登录（username, password, role="管理员"）</td></tr>
+    <tr><td>/yonghu/login</td><td>POST</td><td>免</td><td>顾客登录（role="用户"）</td></tr>
+    <tr><td>/yonghu/register</td><td>POST</td><td>免</td><td>顾客注册（JSON body）</td></tr>
+    <tr><td>/yonghu/resetPass</td><td>—</td><td>免</td><td>重置密码</td></tr>
+    <tr><td>/yonghu/session</td><td>GET</td><td>需</td><td>获取当前登录人信息</td></tr>
+    <tr><td>/yonghu/logout</td><td>GET</td><td>需</td><td>退出登录</td></tr>
+    <tr><td>/file/upload</td><td>POST</td><td>免</td><td>文件上传，存至 webapp/upload/，返回访问 URL</td></tr>
+    <tr><td>/config/list、/config/detail/{id}</td><td>GET</td><td>免</td><td>轮播图等配置读取</td></tr>
+  </table>
+  <h2 id="section-6-3">6.3 业务模块接口（模式统一）</h2>
+  <table>
+    <tr><th>接口</th><th>方法</th><th>说明</th></tr>
+    <tr><td>/xxx/page</td><td>GET</td><td>分页 + 条件查询</td></tr>
+    <tr><td>/xxx/info/{id}</td><td>GET</td><td>按主键查询</td></tr>
+    <tr><td>/xxx/save</td><td>POST(JSON)</td><td>新增（含重复数据校验）</td></tr>
+    <tr><td>/xxx/update</td><td>POST(JSON)</td><td>修改</td></tr>
+    <tr><td>/xxx/delete</td><td>POST(JSON)，body 为 id 数组</td><td>批量删除</td></tr>
+  </table>
+  <p>模块路径：yonghu（顾客）、kuchuen（库存）、haixian（海鲜菜品）、canzhuo（餐桌）、yudingcanzhuo（预订）、liushui（流水）、dingdanxiangqing（订单明细）、dictionary（字典）、config（配置）。</p>
+  <h2 id="section-6-4">6.4 特殊业务接口</h2>
+  <table>
+    <tr><th>接口</th><th>方法</th><th>说明</th></tr>
+    <tr><td>/canzhuo/subscribe?ids={餐桌id}</td><td>—</td><td>预订餐桌：餐桌 sf_types 置 1，写入 yudingcanzhuo（绑定当前登录用户）</td></tr>
+    <tr><td>/haixian/diancai</td><td>—</td><td>点餐：参数为 {库存id: 数量} 的表单 Map，详见 7.3</td></tr>
+    <tr><td>/liushui/gaiwei?ids={流水id}</td><td>—</td><td>支付：流水 sf_types 2→1，释放餐桌、删除预订记录</td></tr>
+  </table>
+
+  <h1 id="section-7">7. 核心业务流程设计</h1>
+  <h2 id="section-7-1">7.1 登录认证流程</h2>
+  <pre>前端提交 username/password/role
+        │
+        ▼
+按 role 选表查询（管理员→users，用户→yonghu）
+        │  校验 role 与密码（明文比对）
+        ▼
+TokenService.generateToken：
+  生成 32 位随机 token，有效期 1 小时，
+  写入 token 表（同人同角色覆盖旧 token）
+        │
+        ▼
+前端保存 token，后续请求统一携带 Header: Token
+        │
+        ▼
+AuthorizationInterceptor：查 token 表且未过期
+  → 通过，并把 userId/role 放入 Session</pre>
+  <h2 id="section-7-2">7.2 预订餐桌流程（顾客）</h2>
+  <ol>
+    <li>顾客在「未预定餐桌」列表点击<b>预定</b>；</li>
+    <li>后端 /canzhuo/subscribe：餐桌 sf_types=1（已预订），插入 yudingcanzhuo 记录（餐桌 id + 当前用户 id + 时间）；</li>
+    <li>一个用户同时只有一条有效预订（点餐时按 yh_types 查询第一条）。</li>
+  </ol>
+  <h2 id="section-7-3">7.3 点餐流程（/haixian/diancai）</h2>
+  <pre>顾客在海鲜列表选数量 → 提交 {kuchuen.id: 数量}
+        │
+        ▼
+以当前毫秒时间戳生成订单号 odd
+        │
+        ▼
+逐项校验：海鲜存在 / 数量>0 / 该商品在库存表中存在
+          / 用户已预订餐桌 / 购买量 ≤ 库存量
+        │
+        ▼
+写 dingdanxiangqing（订单号、海鲜、单价、数量）
+累加流水总价，写 liushui（sf_types=2 未支付，绑定餐桌与用户）
+        │
+        ▼
+扣减 kuchuen 库存，插入流水，返回成功</pre>
+  <p class="warn">⚠️ 已知代码缺陷（原项目遗留，重写此模块时须修正）：
+  HaixianController.diancai 中变量 zhi 被赋值为库存记录的主键 id（kuchuenEntity.getId()），却在两处被当作"购买数量"使用：dingdanxiangqing.setNumber(zhi) 与库存扣减 number - zhi。这会导致订单明细的数量、以及库存扣减量都不等于顾客实际购买数量。此外，循环中每次覆盖同一实体再 insert，总价 maxMoney 的累加同样基于错误数量；整个点餐过程无事务回滚保护（事务切面仅覆盖 service 层方法），失败时可能产生脏数据。</p>
+  <h2 id="section-7-4">7.4 支付/结账流程（/liushui/gaiwei）</h2>
+  <pre>顾客/管理员对未支付流水点击支付
+        │
+        ▼
+校验：流水存在 且 sf_types=2（未支付）
+        │
+        ▼
+流水 sf_types → 1（已支付）
+餐桌 sf_types → 2（释放为未预订）
+删除 yudingcanzhuo 中该餐桌的预订记录</pre>
+  <h2 id="section-7-5">7.5 文件上传流程</h2>
+  <p>/file/upload：按时间戳重命名 → 存入 webapp/upload/ → 返回 http://localhost:8080/zizhuchanting/upload/文件名。注意 WAR 重新部署后 webapp/upload 会被覆盖，<b>上传文件不做持久化</b>。</p>
+
+  <h1 id="section-8">8. 前端设计</h1>
+  <ul>
+    <li><b>构建产物</b>：src/main/webapp/admin/dist/（index.html + hash 路由），部署后直接随 WAR 访问 /zizhuchanting/admin/dist/；</li>
+    <li><b>接口地址</b>：dist/js/index.*.js 中硬编码 http://localhost:8080/zizhuchanting/，若改端口/域名需重新构建（npm run build，Node 建议用 12~14 适配 node-sass）；</li>
+    <li><b>主要页面</b>（src/views/）：login（登录/注册，含角色单选）、home（首页轮播+统计）、center（个人信息）、update-password，及 modules 下 yonghu / canzhuo / haixian（含 diancan 点餐页）/ kuchuen / liushui / yudingcanzhuo / dingdanxiangqing / dictionary 各列表页；</li>
+    <li><b>状态</b>：登录态（token、角色）存 localStorage / Vuex（src/store）。</li>
+  </ul>
+
+  <h1 id="section-9">9. 部署设计</h1>
+  <h2 id="section-9-1">9.1 构建与部署步骤</h2>
+  <pre># 1. 编译打包（需 JDK 8、Maven 3.6+）
+set JAVA_HOME=C:\Jemeter\JDK1.8
+mvn -DskipTests clean package
+# 产物：target/zizhuchanting.war
+
+# 2. 部署
+copy target\zizhuchanting.war D:\apache-tomcat-9.0.29\webapps\
+
+# 3. 启动（需先设置 JAVA_HOME）
+D:\apache-tomcat-9.0.29\bin\startup.bat</pre>
+  <h2 id="section-9-2">9.2 环境配置要点</h2>
+  <table>
+    <tr><th>配置项</th><th>位置</th><th>当前值</th></tr>
+    <tr><td>数据库地址/账号</td><td>config.properties</td><td>127.0.0.1:3306/zizhuchanting，root</td></tr>
+    <tr><td>MySQL 驱动</td><td>pom.xml mysql.version</td><td>8.0.28（必须 ≥8，否则连 MySQL 8 报 Communications link failure）</td></tr>
+    <tr><td>连接串参数</td><td>config.properties jdbc_url</td><td>含 useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Asia/Shanghai</td></tr>
+    <tr><td>端口</td><td>Tomcat conf/server.xml</td><td>8080</td></tr>
+    <tr><td>初始化数据</td><td>D:\db.sql</td><td>建库建表 + 种子数据（含 admin/admin）</td></tr>
+  </table>
+  <h2 id="section-9-3">9.3 日志</h2>
+  <ul>
+    <li>Tomcat 日志：D:\apache-tomcat-9.0.29\logs\catalina.日期.log、localhost.日期.log；</li>
+    <li>应用日志：log4j 输出（yo_log 目录）。</li>
+  </ul>
+
+  <h1 id="section-10">10. 设计评价与改进建议</h1>
+  <table>
+    <tr><th>问题</th><th>风险</th><th>建议</th></tr>
+    <tr><td>密码明文存储（users/yonghu）</td><td>泄露风险</td><td>改用 BCrypt/MD5+盐</td></tr>
+    <tr><td>diancai 数量/扣库存 bug（见 7.3）</td><td>数据错误</td><td>用"购买数量"替代 zhi，并把点餐包进事务</td></tr>
+    <tr><td>无物理外键、tinyint 逻辑关联</td><td>数据不一致</td><td>建外键或至少加唯一/存在性校验</td></tr>
+    <tr><td>接口无角色级鉴权</td><td>越权操作</td><td>拦截器中按 role 校验写操作</td></tr>
+    <tr><td>上传文件存 webapp 内</td><td>重新部署丢失</td><td>迁移到独立磁盘目录</td></tr>
+    <tr><td>token 表永不清量</td><td>缓慢膨胀</td><td>定时清理过期 token</td></tr>
+    <tr><td>config 中图片指向旧路径 fd-ssmj</td><td>图片 404</td><td>更新 config 表为当前部署地址</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

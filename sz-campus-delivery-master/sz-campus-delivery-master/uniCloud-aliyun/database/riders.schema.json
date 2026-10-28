@@ -1,0 +1,51 @@
+{
+  "bsonType": "object",
+  "required": ["name", "phone", "password"],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "骑手姓名",
+      "trim": "both"
+    },
+    "phone": {
+      "bsonType": "string",
+      "description": "手机号",
+      "trim": "both"
+    },
+    "password": {
+      "bsonType": "string",
+      "description": "密码（MD5）"
+    },
+    "status": {
+      "bsonType": "int",
+      "description": "状态：1=空闲 2=配送中 3=禁用",
+      "defaultValue": 1
+    },
+    "totalDeliveries": {
+      "bsonType": "int",
+      "description": "累计配送次数",
+      "defaultValue": 0
+    },
+    "token": {
+      "bsonType": "string",
+      "description": "登录token"
+    },
+    "tokenExpire": {
+      "bsonType": "timestamp",
+      "description": "token过期时间"
+    },
+    "createTime": {
+      "bsonType": "timestamp",
+      "description": "注册时间"
+    }
+  }
+}

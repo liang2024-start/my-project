@@ -1,0 +1,30 @@
+{
+  "bsonType": "object",
+  "required": ["name", "phone", "password", "status"],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": "doc._id == auth.uid || doc.role == 'admin'",
+    "delete": false
+  },
+  "properties": {
+    "_id": { "description": "商家ID" },
+    "name": { "bsonType": "string", "title": "店铺名称", "minLength": 2, "maxLength": 20 },
+    "phone": { "bsonType": "string", "title": "手机号" },
+    "password": { "bsonType": "string", "title": "密码(MD5)" },
+    "avatar": { "bsonType": "string", "title": "头像" },
+    "cover": { "bsonType": "string", "title": "店铺封面" },
+    "description": { "bsonType": "string", "title": "店铺简介" },
+    "category": { "bsonType": "string", "title": "店铺分类" },
+    "address": { "bsonType": "string", "title": "取餐地址" },
+    "deliveryFee": { "bsonType": "double", "title": "配送费", "defaultValue": 0 },
+    "minOrderAmount": { "bsonType": "double", "title": "起送金额", "defaultValue": 0 },
+    "status": { "bsonType": "int", "title": "状态 0-待审核 1-营业中 2-休息中 3-禁用", "defaultValue": 0 },
+    "rating": { "bsonType": "double", "title": "评分", "defaultValue": 5.0 },
+    "salesCount": { "bsonType": "int", "title": "总销量", "defaultValue": 0 },
+    "openTime": { "bsonType": "string", "title": "营业时间" },
+    "tags": { "bsonType": "array", "title": "标签" },
+    "createTime": { "bsonType": "timestamp" },
+    "updateTime": { "bsonType": "timestamp" }
+  }
+}

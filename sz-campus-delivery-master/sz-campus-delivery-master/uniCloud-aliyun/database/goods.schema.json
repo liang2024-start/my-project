@@ -1,0 +1,27 @@
+{
+  "bsonType": "object",
+  "required": ["merchantId", "name", "price", "stock"],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": "auth.uid != null"
+  },
+  "properties": {
+    "_id": { "description": "商品ID" },
+    "merchantId": { "bsonType": "string", "title": "所属商家ID", "foreignKey": "merchants._id" },
+    "name": { "bsonType": "string", "title": "商品名称", "minLength": 1, "maxLength": 30 },
+    "description": { "bsonType": "string", "title": "商品描述" },
+    "price": { "bsonType": "double", "title": "售价" },
+    "originalPrice": { "bsonType": "double", "title": "原价" },
+    "image": { "bsonType": "string", "title": "商品图片" },
+    "categoryId": { "bsonType": "string", "title": "分类ID" },
+    "stock": { "bsonType": "int", "title": "库存", "defaultValue": 999 },
+    "sales": { "bsonType": "int", "title": "销量", "defaultValue": 0 },
+    "status": { "bsonType": "int", "title": "状态 0-下架 1-上架", "defaultValue": 1 },
+    "isRecommend": { "bsonType": "bool", "title": "是否推荐", "defaultValue": false },
+    "specs": { "bsonType": "array", "title": "规格选项" },
+    "createTime": { "bsonType": "timestamp" },
+    "updateTime": { "bsonType": "timestamp" }
+  }
+}

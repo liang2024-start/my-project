@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布书籍 - 校园二手书交易平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/book-management.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">校园二手书交易平台</h1>
+    <nav class="nav">
+        <a href="index.html" class="nav-link">首页</a>
+        <a href="book-list.html" class="nav-link">书籍列表</a>
+        <a href="book-publish.html" class="nav-link active">发布书籍</a>  <!-- 正确：发布书籍页面应为active -->
+        <a href="gallery.html" class="nav-link">图片库</a>
+        <!-- 登录状态显示 -->
+        <div id="userStatus" class="user-status">
+            <span id="usernameDisplay">游客</span>
+            <button id="loginBtn" class="btn btn-primary">登录</button>
+            <button id="registerBtn" class="btn btn-secondary">注册</button>
+            <button id="logoutBtn" class="btn btn-logout" style="display:none;">退出</button>
+        </div>
+        </nav>
+       </div>
+    </header>
+
+     <main class="main">
+        <div class="container">
+            <h2>发布二手书</h2>
+            <form id="bookPublishForm" class="book-form">
+                <!-- 书名 -->
+                <div class="form-group">
+                    <label for="bookTitle">书名 *</label>
+                    <input type="text" id="bookTitle" name="title" required maxlength="100">
+                    <span class="char-count" id="titleCharCount">0/100</span>
+                    <span class="error-message" id="bookTitleError"></span>
+                </div>
+
+                <!-- 作者 -->
+                <div class="form-group">
+                    <label for="bookAuthor">作者 *</label>
+                    <div class="author-inputs">
+                        <input type="text" id="bookAuthor" name="author" required>
+                        <button type="button" id="addAuthorBtn" class="btn btn-secondary">+ 添加作者</button>
+                    </div>
+                    <div id="additionalAuthors"></div>
+                    <span class="error-message" id="bookAuthorError"></span>
+                </div>
+
+                <!-- ISBN -->
+                <div class="form-group">
+                    <label for="bookISBN">ISBN *</label>
+                    <input type="text" id="bookISBN" name="isbn" required>
+                    <button type="button" id="isbnScanBtn" class="btn btn-secondary">扫码</button>
+                    <span class="error-message" id="bookISBError"></span>
+                </div>
+
+                <!-- 出版社 -->
+                <div class="form-group">
+                    <label for="bookPublisher">出版社 *</label>
+                    <input type="text" id="bookPublisher" name="publisher" required>
+                    <span class="error-message" id="bookPublisherError"></span>
+                </div>
+
+                <!-- 分类 -->
+                <div class="form-group">
+                    <label for="bookCategory">分类 *</label>
+                    <select id="bookCategory" name="category" required>
+                        <option value="">请选择分类</option>
+                        <option value="教材">教材</option>
+                        <option value="文学">文学</option>
+                        <option value="计算机">计算机</option>
+                        <option value="外语">外语</option>
+                        <option value="艺术">艺术</option>
+                        <option value="经济">经济</option>
+                        <option value="科学">科学</option>
+                        <option value="医学">医学</option>
+                        <option value="其他">其他</option>
+                    </select>
+                    <span class="error-message" id="bookCategoryError"></span>
+                </div>
+
+                <!-- 新旧程度 -->
+                <div class="form-group">
+                    <label>新旧程度 *</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="condition" value="全新" required> 全新</label>
+                        <label><input type="radio" name="condition" value="几乎全新"> 几乎全新</label>
+                        <label><input type="radio" name="condition" value="轻微使用痕迹"> 轻微使用痕迹</label>
+                        <label><input type="radio" name="condition" value="有明显使用痕迹"> 有明显使用痕迹</label>
+                        <label><input type="radio" name="condition" value="旧书"> 旧书</label>
+                    </div>
+                    <span class="error-message" id="bookConditionError"></span>
+                </div>
+
+                <!-- 价格 -->
+                <div class="form-group">
+                    <label for="bookPrice">价格 *</label>
+                    <input type="number" id="bookPrice" name="price" min="0.01" step="0.01" required>
+                    <span class="price-hint">参考价格范围：10-200元</span>
+                    <span class="error-message" id="bookPriceError"></span>
+                </div>
+
+                <!-- 交易方式 -->
+                <div class="form-group">
+                    <label>交易方式 *</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="transactionMethod" value="当面交易" required> 当面交易</label>
+                        <label><input type="checkbox" name="transactionMethod" value="邮寄"> 邮寄</label>
+                        <label><input type="checkbox" name="transactionMethod" value="校内配送"> 校内配送</label>
+                    </div>
+                    <span class="error-message" id="bookTransactionError"></span>
+                </div>
+
+                <!-- 书籍描述 -->
+                <div class="form-group">
+                    <label for="bookDescription">书籍描述 *</label>
+                    <textarea id="bookDescription" name="description" rows="5" required></textarea>
+                    <span class="char-count" id="descriptionCharCount">0/500</span>
+                    <div class="description-templates">
+                        <button type="button" class="template-btn" data-template="全新未拆封">全新未拆封</button>
+                        <button type="button" class="template-btn" data-template="有笔记但不影响阅读">有笔记但不影响阅读</button>
+                        <button type="button" class="template-btn" data-template="轻微使用痕迹，内页干净">轻微使用痕迹，内页干净</button>
+                    </div>
+                    <span class="error-message" id="bookDescriptionError"></span>
+                </div>
+
+                <!-- 图片上传 -->
+                <div class="form-group">
+                    <label>书籍图片 *</label>
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <div class="upload-instructions">
+                            <p>拖拽图片到此处或点击上传</p>
+                            <p>支持JPG、PNG、GIF格式，单张不超过5MB，最多5张</p>
+                        </div>
+                        <input type="file" id="bookImages" name="images" multiple accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-primary" id="browseImagesBtn">选择图片</button>
+                    </div>
+                    <div id="imagePreviewContainer" class="image-preview-container"></div>
+                    <span class="error-message" id="bookImagesError"></span>
+                </div>
+
+                <!-- 联系方式 -->
+                <div class="form-group">
+                    <label for="bookContact">联系方式</label>
+                    <textarea id="bookContact" name="contact" rows="3" placeholder="请输入联系方式（可选，不建议填写敏感信息）"></textarea>
+                    <span class="error-message" id="bookContactError"></span>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">发布书籍</button>
+                    <button type="button" class="btn btn-secondary" id="saveDraftBtn">保存草稿</button>
+                    <button type="button" class="btn btn-outline" id="cancelBtn">取消</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 校园二手书交易平台. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="js/book-management.js"></script>
+    <script src="js/book-data.js"></script>
+</body>
+</html>

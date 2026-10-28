@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星禾数智 · 智能招聘辅助平台（交互原型）</title>
+<style>
+  :root{
+    --primary:#3370ff; --primary-weak:#e8f0ff;
+    --bg:#f5f7fa; --card:#ffffff; --line:#e8eaf0;
+    --text:#1f2329; --text2:#646a73; --text3:#8f959e;
+    --green:#2ea121; --green-bg:#e6f5e4;
+    --orange:#e67300; --orange-bg:#fff3e0;
+    --red:#d83931; --red-bg:#fdeceb;
+    --blue:#2b7fd4; --blue-bg:#e6f3fb;
+    --purple:#7b61ff; --purple-bg:#f0edff;
+    --gray-bg:#f2f3f5;
+    --radius:10px; --shadow:0 1px 4px rgba(31,35,41,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:14px;}
+  input,textarea{font-family:inherit;font-size:14px;}
+
+  /* ============ 布局 ============ */
+  .app{display:flex;height:100vh;overflow:hidden;}
+  .sidebar{width:220px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0;}
+  .logo{padding:18px 16px;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);}
+  .logo .mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#3370ff,#7b61ff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .logo small{display:block;font-size:11px;color:var(--text3);font-weight:400;}
+  .nav{flex:1;padding:12px 8px;}
+  .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:8px;color:var(--text2);margin-bottom:4px;transition:.15s;text-align:left;}
+  .nav-item:hover{background:var(--gray-bg);}
+  .nav-item.active{background:var(--primary-weak);color:var(--primary);font-weight:600;}
+  .nav-item .ico{font-size:16px;width:20px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:11px;border-radius:8px;padding:1px 7px;}
+  .side-foot{padding:12px 16px;border-top:1px solid var(--line);color:var(--text3);font-size:11px;line-height:1.6;}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;}
+  .topbar h1{font-size:16px;font-weight:600;}
+  .topbar .spacer{flex:1;}
+  .role-switch{display:flex;background:var(--gray-bg);border-radius:8px;padding:3px;}
+  .role-switch button{padding:5px 12px;border-radius:6px;color:var(--text2);}
+  .role-switch button.on{background:#fff;color:var(--primary);font-weight:600;box-shadow:var(--shadow);}
+  .content{flex:1;overflow-y:auto;padding:20px 24px;}
+
+  .page{display:none;}
+  .page.show{display:block;}
+
+  /* ============ 通用组件 ============ */
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px;}
+  .card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;white-space:nowrap;}
+  .tag.green{background:var(--green-bg);color:var(--green);}
+  .tag.orange{background:var(--orange-bg);color:var(--orange);}
+  .tag.red{background:var(--red-bg);color:var(--red);}
+  .tag.blue{background:var(--blue-bg);color:var(--blue);}
+  .tag.gray{background:var(--gray-bg);color:var(--text2);}
+  .tag.purple{background:var(--purple-bg);color:var(--purple);}
+  .btn{padding:8px 16px;border-radius:8px;transition:.15s;font-weight:500;}
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:#2860e1;}
+  .btn-plain{background:#fff;border:1px solid var(--line);color:var(--text);}
+  .btn-plain:hover{border-color:var(--primary);color:var(--primary);}
+  .btn-danger{background:var(--red-bg);color:var(--red);}
+  .btn-danger:hover{background:#f9d9d7;}
+  .btn-warn{background:var(--orange-bg);color:var(--orange);}
+  .btn-warn:hover{background:#ffe9cc;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-sm{padding:5px 12px;font-size:13px;border-radius:6px;}
+  .empty{color:var(--text3);text-align:center;padding:30px 0;font-size:13px;}
+
+  /* Toast */
+  #toasts{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(31,35,41,.15);padding:11px 16px;display:flex;align-items:center;gap:8px;font-size:13px;animation:slideIn .25s;max-width:340px;border-left:3px solid var(--green);}
+  .toast.error{border-left-color:var(--red);}
+  .toast.info{border-left-color:var(--primary);}
+  @keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+
+  /* Modal */
+  #modal-mask{position:fixed;inset:0;background:rgba(31,35,41,.45);z-index:998;display:none;align-items:center;justify-content:center;}
+  #modal-mask.show{display:flex;}
+  #modal-box{background:#fff;border-radius:12px;width:560px;max-width:92vw;max-height:86vh;overflow-y:auto;padding:22px 24px;animation:pop .2s;}
+  @keyframes pop{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
+  #modal-box h3{font-size:16px;margin-bottom:14px;}
+  #modal-box .m-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;}
+  .field label .req{color:var(--red);}
+  .field textarea,.field input[type=text],.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;resize:vertical;outline:none;background:#fff;color:var(--text);}
+  .field select{height:38px;}
+  .field textarea:focus,.field input:focus,.field select:focus{border-color:var(--primary);}
+  .field .hint{color:var(--text3);font-size:12px;margin-top:4px;}
+  .checkline{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--orange-bg);border-radius:8px;font-size:13px;margin-bottom:14px;cursor:pointer;}
+
+  /* ============ 页1 岗位需求 ============ */
+  .jobs-layout{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start;}
+  .job-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;}
+  .job-item:hover{border-color:var(--primary);}
+  .job-item.active{border-color:var(--primary);background:var(--primary-weak);}
+  .job-item .j-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .job-item .j-name{font-weight:600;font-size:15px;}
+  .job-item .j-meta{color:var(--text3);font-size:12px;display:flex;gap:14px;}
+  .weights{display:flex;gap:8px;margin:8px 0;}
+  .w-cell{flex:1;background:var(--gray-bg);border-radius:8px;padding:8px;text-align:center;}
+  .w-cell b{display:block;font-size:17px;color:var(--primary);}
+  .w-cell span{font-size:11px;color:var(--text2);}
+  .criteria-list li{list-style:none;padding:9px 12px;background:var(--gray-bg);border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.5;display:flex;gap:8px;}
+  .criteria-list .c-tag{flex-shrink:0;height:fit-content;}
+  .qa-item{border-left:3px solid var(--primary-weak);padding:8px 12px;margin-bottom:10px;background:#fafbfc;border-radius:0 8px 8px 0;font-size:13px;}
+  .qa-item .q{font-weight:600;margin-bottom:4px;}
+  .qa-item .a{color:var(--text2);}
+  .qa-item .t{color:var(--text3);font-size:11px;margin-top:4px;}
+  .qa-item.pending{border-left-color:var(--orange);}
+  .confirm-strip{display:flex;align-items:center;gap:10px;background:var(--green-bg);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-top:12px;}
+  .clarify-banner{display:flex;align-items:center;gap:10px;background:var(--orange-bg);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);margin-bottom:12px;}
+
+  /* ============ 页2 简历 ============ */
+  .redline{display:flex;align-items:center;gap:10px;background:var(--red-bg);color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;font-weight:500;}
+  .resume-table{width:100%;border-collapse:collapse;}
+  .resume-table th{text-align:left;color:var(--text3);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line);}
+  .resume-table td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:13px;}
+  .resume-table tr.r-row{cursor:pointer;transition:.1s;}
+  .resume-table tr.r-row:hover{background:#f8faff;}
+  .grade{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;}
+  .grade.A{background:var(--green);} .grade.B{background:var(--blue);} .grade.C{background:var(--orange);}
+  .score-bar{display:inline-flex;align-items:center;gap:8px;}
+  .score-bar .track{width:70px;height:6px;background:var(--gray-bg);border-radius:3px;overflow:hidden;}
+  .score-bar .fill{height:100%;background:var(--primary);border-radius:3px;}
+
+  .resume-detail{display:none;}
+  .resume-detail.show{display:block;}
+  .back-link{color:var(--primary);cursor:pointer;font-size:13px;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px;}
+  .three-col{display:grid;grid-template-columns:1fr 1.15fr 0.85fr;gap:14px;align-items:start;}
+  .col-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:16px;}
+  .col-card h4{font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .pdf-box{background:#fafbfc;border:1px dashed var(--line);border-radius:8px;padding:14px;font-size:12.5px;line-height:1.9;color:var(--text2);max-height:520px;overflow-y:auto;}
+  .pdf-box b{color:var(--text);}
+  .pdf-box .hl{background:#fff3c2;padding:1px 3px;border-radius:3px;color:#7a5b00;}
+  .pdf-box .sec{font-weight:700;color:var(--text);margin:10px 0 2px;}
+  .score-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#eef4ff,#f5f0ff);border-radius:10px;padding:14px;margin-bottom:14px;}
+  .score-hero .big{font-size:34px;font-weight:800;color:var(--primary);}
+  .ai-note{font-size:11.5px;color:var(--text3);background:var(--gray-bg);border-radius:6px;padding:7px 10px;margin-top:12px;line-height:1.5;}
+  .match-item{border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:8px;font-size:12.5px;}
+  .match-item .m-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-weight:600;font-size:13px;}
+  .match-item .evi{background:#fffbe6;border-radius:5px;padding:6px 8px;color:#7a5b00;margin-top:5px;line-height:1.5;}
+  .match-item .evi::before{content:"📄 原文证据：";font-weight:600;}
+  .match-item .src{color:var(--text3);font-size:11px;margin-top:4px;}
+  .match-item.ok{border-left:3px solid var(--green);}
+  .match-item.miss{border-left:3px solid var(--orange);background:#fffdf8;}
+  .tagcloud{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .q-item{border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:8px;font-size:12.5px;line-height:1.5;}
+  .q-item .q-no{color:var(--primary);font-weight:700;}
+  .q-item.done{opacity:.55;text-decoration:line-through;border-left:3px solid var(--green);}
+  .action-bar{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:14px 18px;display:flex;gap:10px;align-items:center;margin-top:14px;}
+  .action-bar .note{color:var(--text3);font-size:12px;margin-left:auto;}
+
+  /* ============ 页3 部门反馈 ============ */
+  .fb-layout{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start;}
+  .fb-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;}
+  .fb-item:hover{border-color:var(--primary);}
+  .fb-item.active{border-color:var(--primary);background:var(--primary-weak);}
+  .fb-item .f-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+  .fb-item .f-meta{color:var(--text3);font-size:12px;}
+  .wait{color:var(--red);font-weight:600;}
+  .fb-detail .mat-block{background:var(--gray-bg);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.7;}
+  .fb-detail .mat-block b.lbl{display:block;margin-bottom:4px;color:var(--text);}
+  .btn-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;}
+  .btn-row3 .btn{padding:11px 0;text-align:center;border-radius:8px;font-weight:600;}
+  .decided-strip{border-radius:8px;padding:14px;margin-top:16px;font-size:13px;line-height:1.7;}
+  .decided-strip.ok{background:var(--green-bg);color:var(--green);}
+  .decided-strip.no{background:var(--red-bg);color:var(--red);}
+  .decided-strip.sup{background:var(--purple-bg);color:var(--purple);}
+
+  /* ============ 页4 看板 ============ */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+  .kpi{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:16px 18px;}
+  .kpi .k-label{color:var(--text2);font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+  .kpi .k-val{font-size:28px;font-weight:800;}
+  .kpi .k-sub{color:var(--text3);font-size:11px;margin-top:4px;}
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;}
+  .bar-row .b-label{width:130px;color:var(--text2);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-row .b-track{flex:1;height:16px;background:var(--gray-bg);border-radius:8px;overflow:hidden;}
+  .bar-row .b-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#3370ff,#6b9bff);transition:width .6s;}
+  .bar-row .b-fill.warn{background:linear-gradient(90deg,#e67300,#f2a44a);}
+  .bar-row .b-fill.good{background:linear-gradient(90deg,#2ea121,#5cc452);}
+  .bar-row .b-val{width:52px;flex-shrink:0;font-weight:600;}
+  .funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;}
+  .funnel-row .f-track{flex:1;height:22px;background:var(--gray-bg);border-radius:6px;overflow:hidden;}
+  .funnel-row .f-fill{height:100%;background:linear-gradient(90deg,#3370ff,#7b61ff);border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11px;min-width:34px;transition:width .6s;}
+  .funnel-row .f-label{width:96px;flex-shrink:0;color:var(--text2);}
+  .alert-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:8px;margin-bottom:10px;font-size:13px;background:#fff;}
+  .alert-item .a-txt{flex:1;line-height:1.5;}
+  .alert-item .a-txt b{color:var(--red);}
+
+  /* ============ 顶部：折叠式账号选择器 / 通知面板 ============ */
+  .dd{position:relative;}
+  .account-btn{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 5px;border:1px solid var(--line);border-radius:20px;background:#fff;transition:.15s;}
+  .account-btn:hover{border-color:var(--primary);}
+  .account-btn .avatar{width:26px;height:26px;margin:0;}
+  .acc-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;max-width:170px;}
+  .acc-txt b{font-size:13px;}
+  .acc-txt small{font-size:11px;color:var(--text3);max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .caret{font-size:10px;color:var(--text3);transition:.2s;}
+  .caret.open{transform:rotate(180deg);}
+  .panel{display:none;position:absolute;right:0;top:46px;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(31,35,41,.16);z-index:900;overflow:hidden;border:1px solid var(--line);}
+  .panel.open{display:block;}
+  .account-panel{width:336px;}
+  .ap-head{padding:11px 14px 9px;font-size:11.5px;color:var(--text3);border-bottom:1px solid var(--line);}
+  .ap-head b{color:var(--text);font-size:13px;display:block;margin-bottom:2px;}
+  .ap-list{max-height:352px;overflow-y:auto;padding:6px;}
+  .ap-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;transition:.12s;}
+  .ap-item:hover{background:var(--gray-bg);}
+  .ap-item.active{background:var(--primary-weak);}
+  .ap-item.disabled{opacity:.5;cursor:not-allowed;}
+  .ap-item.disabled:hover{background:none;}
+  .ap-item .ap-info{flex:1;min-width:0;line-height:1.3;}
+  .ap-item .ap-info b{font-size:13px;display:block;}
+  .ap-item .ap-info small{font-size:11px;color:var(--text3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ap-foot{padding:9px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--text3);background:#fafbfc;line-height:1.5;}
+  .bell-btn{position:relative;width:34px;height:34px;border-radius:50%;font-size:15px;background:#fff;border:1px solid var(--line);}
+  .bell-btn:hover{border-color:var(--primary);}
+  .bell-dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 4px;}
+  .notif-panel{width:352px;}
+  .nf-item{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12.5px;line-height:1.5;}
+  .nf-item:hover{background:#f8faff;}
+  .nf-item.unread{background:#f4f8ff;}
+  .nf-item .nf-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:2px;}
+  .nf-item .nf-top b{font-size:13px;}
+  .nf-item .nf-time{color:var(--text3);font-size:11px;flex-shrink:0;}
+  .nf-item .nf-detail{color:var(--text2);font-size:12px;}
+  .nf-empty{padding:26px 16px;text-align:center;color:var(--text3);font-size:12.5px;line-height:1.7;}
+
+  /* ============ 部门反馈页签 / 面试官 / 用人结果 ============ */
+  .fb-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .fb-tab{padding:8px 16px;border-radius:8px;background:#fff;border:1px solid var(--line);color:var(--text2);font-size:13px;transition:.15s;}
+  .fb-tab:hover{border-color:var(--primary);color:var(--primary);}
+  .fb-tab.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+  .fb-tab .tab-num{display:inline-block;min-width:17px;height:17px;line-height:17px;border-radius:9px;background:rgba(255,255,255,.25);font-size:11px;text-align:center;padding:0 4px;margin-left:2px;}
+  .fb-tab:not(.active) .tab-num{background:var(--red);color:#fff;}
+  .iv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+  .iv-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-weak);color:var(--primary);border-radius:20px;padding:4px 12px 4px 6px;font-size:12.5px;}
+  .iv-chip .avatar{width:20px;height:20px;font-size:10px;margin:0;background:#fff;}
+  .iv-pick{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:.12s;}
+  .iv-pick:hover{border-color:var(--primary);}
+  .iv-pick.checked{border-color:var(--primary);background:var(--primary-weak);}
+  .hire-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;}
+  .hire-item:hover{border-color:var(--primary);}
+  .hire-item.active{border-color:var(--primary);background:var(--primary-weak);}
+  .hire-item .h-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+  .hire-item .h-meta{color:var(--text3);font-size:12px;line-height:1.6;}
+  .hire-form{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:18px 20px;}
+  .rate-group{display:flex;gap:8px;flex-wrap:wrap;}
+  .rate-opt{padding:7px 14px;border:1px solid var(--line);border-radius:8px;font-size:13px;cursor:pointer;transition:.12s;color:var(--text2);}
+  .rate-opt:hover{border-color:var(--primary);}
+  .rate-opt.on{border-color:var(--primary);background:var(--primary-weak);color:var(--primary);font-weight:600;}
+  .kpi-mini-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;}
+  .kpi-mini{background:var(--gray-bg);border-radius:8px;padding:12px;text-align:center;}
+  .kpi-mini b{display:block;font-size:20px;margin-bottom:2px;}
+  .kpi-mini span{font-size:11.5px;color:var(--text2);}
+
+  /* ============ 页5 平台管理 ============ */
+  .user-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .user-table th{text-align:left;color:var(--text3);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .user-table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  .user-table tr:hover td{background:#fafbfc;}
+  .user-table .ops{display:flex;gap:6px;flex-wrap:wrap;}
+  .link-btn{color:var(--primary);font-size:12.5px;padding:2px 4px;}
+  .link-btn:hover{text-decoration:underline;}
+  .link-btn.dis{color:var(--text3);cursor:default;text-decoration:none;}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--primary-weak);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:6px;vertical-align:middle;}
+  .matrix{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .matrix th,.matrix td{border:1px solid var(--line);padding:8px 9px;text-align:center;}
+  .matrix th{background:#fafbfc;color:var(--text2);font-weight:600;font-size:12px;}
+  .matrix td:first-child,.matrix th:first-child{text-align:left;white-space:nowrap;}
+  .matrix .yes{color:var(--green);font-weight:700;}
+  .matrix .no{color:#c9cdd4;}
+  .matrix .view{color:var(--blue);}
+  .cfg-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .cfg-row:last-child{border-bottom:none;}
+  .cfg-row .c-name{width:130px;flex-shrink:0;color:var(--text);font-weight:600;}
+  .cfg-row .c-val{flex:1;color:var(--text2);font-size:12.5px;line-height:1.5;}
+  .switch{width:38px;height:20px;border-radius:10px;background:#dcdfe6;position:relative;flex-shrink:0;}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;}
+  .switch.on{background:var(--green);}
+  .switch.on::after{left:20px;}
+  .switch.locked{background:#e8eaf0;opacity:.6;cursor:not-allowed;}
+  .log-item{display:flex;gap:10px;font-size:12.5px;padding:8px 0;border-bottom:1px dashed var(--line);line-height:1.6;}
+  .log-item:last-child{border-bottom:none;}
+  .log-item .l-time{color:var(--text3);width:78px;flex-shrink:0;font-family:monospace;font-size:11.5px;}
+  .log-item .l-who{font-weight:600;width:70px;flex-shrink:0;}
+  .log-item .l-what{flex:1;}
+  .log-item .l-extra{color:var(--text3);font-size:11.5px;}
+
+  @media (max-width:1100px){
+    .three-col{grid-template-columns:1fr;}
+    .jobs-layout,.fb-layout,.chart-grid{grid-template-columns:1fr;}
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="mark">星</div>
+      <div>星禾招聘<small>智能招聘辅助平台 · 原型</small></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-page="jobs" onclick="navTo('jobs')"><span class="ico">📋</span>岗位需求工作台</button>
+      <button class="nav-item" data-page="resumes" onclick="navTo('resumes')"><span class="ico">📄</span>简历筛选与核对<span class="badge" id="nav-pending">4</span></button>
+      <button class="nav-item" data-page="feedback" onclick="navTo('feedback')"><span class="ico">💬</span>部门反馈工作台<span class="badge" id="nav-fb-badge" style="display:none">0</span></button>
+      <button class="nav-item" data-page="dashboard" onclick="navTo('dashboard')"><span class="ico">📊</span>数据看板与监控</button>
+      <button class="nav-item" data-page="platform" id="nav-platform" style="display:none" onclick="navTo('platform')"><span class="ico">⚙️</span>平台管理</button>
+    </nav>
+    <div class="side-foot">
+      ⚠️ 演示原型 · 数据均为模拟<br>
+      右上角可切换登录账号（仅「启用」账号可登录）<br>
+      合规红线：AI 仅辅助初筛，<b>绝不自动淘汰</b>，不自动提交推荐
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- ===== 顶栏 ===== -->
+    <div class="topbar">
+      <h1 id="page-title">岗位需求工作台</h1>
+      <div class="spacer"></div>
+      <div class="dd" id="dd-bell">
+        <button class="bell-btn" onclick="togglePanel('notif',event)" title="部门反馈通知">🔔<span class="bell-dot" id="bell-dot" style="display:none">0</span></button>
+        <div class="panel notif-panel" id="panel-notif"></div>
+      </div>
+      <div class="dd">
+        <button class="account-btn" onclick="togglePanel('account',event)" title="切换登录账号">
+          <span class="avatar" id="acc-avatar">李</span>
+          <span class="acc-txt"><b id="acc-name">李婷</b><small id="acc-sub">招聘专员 · 招聘组</small></span>
+          <span class="caret" id="acc-caret">▼</span>
+        </button>
+        <div class="panel account-panel" id="panel-account"></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============================================================
+           页面 1：岗位需求工作台
+      ============================================================ -->
+      <section class="page show" id="page-jobs">
+        <div class="jobs-layout">
+          <div>
+            <div class="card" style="padding:14px 16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                <h3 style="margin:0;">招聘需求列表</h3>
+                <span id="job-actions" style="font-size:12px;color:var(--text3)">点击岗位查看已确认条件</span>
+              </div>
+            </div>
+            <div id="job-list"></div>
+          </div>
+          <div id="job-detail"></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           页面 2：简历筛选与核对工作台
+      ============================================================ -->
+      <section class="page" id="page-resumes">
+        <!-- 列表视图 -->
+        <div id="resume-list-view">
+          <div class="redline">🚫 合规红线：AI 只能辅助初筛，系统任何环节都不会自动淘汰候选人；是否推荐由专员人工决定并手动提交（PRD R1/R2/R3）。</div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h3 style="margin:0;">简历列表 · 高级前端工程师（技术部 · 前端组）</h3>
+              <span id="upload-area">
+                <button class="btn btn-primary" onclick="simulateUpload()">⬆ 上传简历（PDF）并解析</button>
+              </span>
+            </div>
+            <table class="resume-table">
+              <thead><tr>
+                <th>候选人</th><th>工作年限</th><th>AI 评分 / 分级</th><th>能力标签（摘要）</th><th>状态</th><th>操作留痕</th>
+              </tr></thead>
+              <tbody id="resume-tbody"></tbody>
+            </table>
+            <div class="ai-note" style="margin-top:12px;">说明：评分为 AI 对照「已确认条件 v2」生成的参考排序依据，<b>不设自动淘汰线</b>；简历未写到的内容标「信息不足」，不判「不具备」。点击任意一行进入三栏核对详情。</div>
+          </div>
+        </div>
+
+        <!-- 详情视图（三栏） -->
+        <div class="resume-detail" id="resume-detail-view">
+          <span class="back-link" onclick="backToResumeList()">← 返回简历列表</span>
+          <div id="resume-detail-body"></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           页面 3：部门反馈工作台
+      ============================================================ -->
+      <section class="page" id="page-feedback">
+        <div class="clarify-banner" id="fb-banner">👤 当前为「用人部门 · 王总监」视角演示：部门对专员推送的简历进行三选一反馈（要面试 / 不要面试 / 需补充信息），拒绝原因必填（PRD R18）。<b>面试决定权仅属于用人部门</b>，招聘专员无此权限（R4）。</div>
+
+        <div class="fb-tabs">
+          <button class="fb-tab active" id="tab-btn-rec" onclick="switchFbTab('rec')">💬 简历推荐反馈 <span class="tab-num" id="tab-rec-num">2</span></button>
+          <button class="fb-tab" id="tab-btn-hire" onclick="switchFbTab('hire')">🌱 用人结果反馈（入职后） <span class="tab-num" id="tab-hire-num">2</span></button>
+        </div>
+
+        <div id="fb-tab-rec">
+          <div class="fb-layout">
+            <div>
+              <div class="card" style="padding:14px 16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <h3 style="margin:0;">专员推送的推荐列表</h3>
+                  <span style="font-size:12px;color:var(--text3)">待处理 <b id="fb-pending-count" style="color:var(--red)">2</b> 条</span>
+                </div>
+              </div>
+              <div id="fb-list"></div>
+            </div>
+            <div id="fb-detail"></div>
+          </div>
+        </div>
+
+        <div id="fb-tab-hire" style="display:none;">
+          <div class="fb-layout">
+            <div>
+              <div class="card" style="padding:14px 16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <h3 style="margin:0;">已入职候选人（本部门）</h3>
+                  <span style="font-size:12px;color:var(--text3)">待反馈 <b id="hire-pending-count" style="color:var(--red)">2</b> 条</span>
+                </div>
+              </div>
+              <div id="hire-list"></div>
+            </div>
+            <div id="hire-detail"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           页面 4：数据看板与流程监控
+      ============================================================ -->
+      <section class="page" id="page-dashboard">
+        <div class="kpi-row">
+          <div class="kpi"><div class="k-label">岗位需求满足率 <span class="tag gray">口径待确认 C10</span></div><div class="k-val" style="color:var(--primary)">67%</div><div class="k-sub">3 个在招岗位中 2 个已进入面试环节</div></div>
+          <div class="kpi"><div class="k-label">平均等待天数</div><div class="k-val" style="color:var(--orange)">2.6 天</div><div class="k-sub">推荐提交 → 部门反馈（近 30 天）</div></div>
+          <div class="kpi"><div class="k-label">简历处理总量</div><div class="k-val">42</div><div class="k-sub">本周新增 9 份 · 已全部解析</div></div>
+          <div class="kpi"><div class="k-label">待部门决定</div><div class="k-val" id="kpi-waiting" style="color:var(--red)">2</div><div class="k-sub">其中 2 条已触发卡点预警 ⚠️</div></div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="card">
+            <h3>各岗位需求满足率（纯 CSS 柱状图）</h3>
+            <div class="bar-row"><span class="b-label">高级前端工程师</span><div class="b-track"><div class="b-fill warn" style="width:50%"></div></div><span class="b-val">50%</span></div>
+            <div class="bar-row"><span class="b-label">数据分析师</span><div class="b-track"><div class="b-fill warn" style="width:0%"></div></div><span class="b-val">0%</span></div>
+            <div class="bar-row"><span class="b-label">产品经理（B端）</span><div class="b-track"><div class="b-fill good" style="width:100%"></div></div><span class="b-val">100%</span></div>
+            <div class="ai-note">岗位需求满足率 = 已到面人数 / 招聘人数（口径为演示示意，PRD C10 确认前仅作参考展示）。</div>
+          </div>
+          <div class="card">
+            <h3>各部门平均等待天数（推荐 → 反馈）</h3>
+            <div class="bar-row"><span class="b-label">技术部 · 前端组</span><div class="b-track"><div class="b-fill warn" style="width:80%"></div></div><span class="b-val">4.0 天</span></div>
+            <div class="bar-row"><span class="b-label">数据中台</span><div class="b-track"><div class="b-fill good" style="width:45%"></div></div><span class="b-val">2.2 天</span></div>
+            <div class="bar-row"><span class="b-label">商业化事业部</span><div class="b-track"><div class="b-fill good" style="width:25%"></div></div><span class="b-val">1.5 天</span></div>
+            <div class="ai-note">经理目标：「对接周期必须控制在 3 个工作日内」（PRD M4，口径待确认 C4）。超过 3 天的部门以橙色标识。</div>
+          </div>
+        </div>
+
+        <div class="chart-grid" style="margin-top:16px;">
+          <div class="card">
+            <h3>简历转化漏斗（近 30 天）</h3>
+            <div class="funnel-row"><span class="f-label">上传简历</span><div class="f-track"><div class="f-fill" style="width:100%">42</div></div></div>
+            <div class="funnel-row"><span class="f-label">AI 解析完成</span><div class="f-track"><div class="f-fill" style="width:100%">42</div></div></div>
+            <div class="funnel-row"><span class="f-label">人工核对完成</span><div class="f-track"><div class="f-fill" style="width:64%">27</div></div></div>
+            <div class="funnel-row"><span class="f-label">专员提交推荐</span><div class="f-track"><div class="f-fill" style="width:29%">12</div></div></div>
+            <div class="funnel-row"><span class="f-label">部门同意面试</span><div class="f-track"><div class="f-fill" style="width:12%">5</div></div></div>
+            <div class="funnel-row"><span class="f-label">发 Offer</span><div class="f-track"><div class="f-fill" style="width:6%">2</div></div></div>
+            <div class="ai-note">AI 只提供解析与评分参考，从「解析完成」到「提交推荐」的每一次流转均为人工操作留痕。</div>
+          </div>
+          <div class="card">
+            <h3>⚠️ 卡点预警（等待部门反馈 &gt; 3 个工作日）</h3>
+            <div id="alert-list"></div>
+            <div class="ai-note">以下候选人仍在「待部门决定」状态，等待时长对专员显式可见（PRD R19/E3），点击「催办」模拟向需求提出人发送提醒。</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3>🌱 用人结果反馈 · 双轨验证</h3>
+          <div id="hire-stats"></div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           页面 5：平台管理（仅平台管理员可见）
+      ============================================================ -->
+      <section class="page" id="page-platform">
+        <div class="clarify-banner" style="background:var(--purple-bg);color:var(--purple);">🔐 平台管理员专属：管理平台配置、创建平台用户并分配角色（部门经理 / 招聘经理 / 招聘专员等）。<b>管理员不参与具体招聘决策</b>，无简历推荐权与面试决定权（职责分离）。</div>
+        <div id="platform-body"></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toasts"></div>
+<!-- Modal -->
+<div id="modal-mask" onclick="if(event.target===this)closeModal()"><div id="modal-box"></div></div>
+
+<script>
+/* =====================================================================
+   Mock 数据（演示专用，全部写死在前端）
+===================================================================== */
+const jobs = [
+  {
+    id:'J1', name:'高级前端工程师', dept:'技术部 · 前端组', status:'进行中',
+    headcount:2, received:8, owner:'李婷', requester:'王总监（技术部）',
+    posted:'2026-10-12', version:'v2', clarifyNeeded:false,
+    interviewers:['王总监','孙磊'], weights:{tech:40,proj:30,soft:30},
+    desc:'负责公司核心 SaaS 产品的前端架构设计与研发，推动工程化体系与研发效能提升。',
+    criteria:[
+      {dim:'技术栈 40%',tag:'blue',items:['精通 React / Vue 任一主流框架（硬性）','熟悉 TypeScript，有大型项目工程化经验（webpack / Vite）']},
+      {dim:'项目经验 30%',tag:'purple',items:['5 年以上前端开发经验（硬性，不接收 3 年及以下）','主导过至少 1 个大型项目从 0 到 1']},
+      {dim:'软技能 30%',tag:'green',items:['良好的沟通协作与文档习惯','有跨团队推动经验（面试重点考察）']}
+    ],
+    clarifyLog:[
+      {q:'5 年经验是硬性门槛吗？3 年但项目特别突出的候选人能否破格？',a:'硬性条件，不接收 3 年经验（参考 PRD R13）。破格情形暂不考虑。',t:'2026-10-13 10:22 · 王总监 已回复',state:'done'},
+      {q:'React 和 Vue 是否有团队偏好？权重内如何细分？',a:'无偏好，任一精通即可，工程化落地经验比框架选择更重要。',t:'2026-10-14 16:05 · 王总监 已回复',state:'done'}
+    ],
+    confirmed:'确认人：王总监（用人部门） · 2026-10-15 14:32 · 条件版本 v2 已生效，作为 AI 解析与人工推荐的唯一依据（BR-02）'
+  },
+  {
+    id:'J2', name:'数据分析师', dept:'数据中台', status:'进行中',
+    headcount:1, received:5, owner:'李婷', requester:'陈经理（数据中台）',
+    posted:'2026-10-18', version:'v1', clarifyNeeded:true,
+    interviewers:['陈经理'], weights:{tech:40,proj:30,soft:30},
+    desc:'（JD 摘录）负责业务数据分析、报表搭建，「最好懂点数仓，最好还会 Python」——需求描述较模糊，关键词不明确。',
+    criteria:[
+      {dim:'技术栈 40%',tag:'blue',items:['SQL 熟练（具体程度待澄清）','Python 数据处理（是否必备待澄清）']},
+      {dim:'项目经验 30%',tag:'purple',items:['有业务分析项目经验（规模待澄清）']},
+      {dim:'软技能 30%',tag:'green',items:['业务理解与表达能力']}
+    ],
+    clarifyLog:[
+      {q:'「最好懂点数仓」是否为必备条件？不懂数仓是否直接不考虑？',a:'',t:'2026-10-19 09:40 · 已向陈经理发起问询，等待回复',state:'pending'}
+    ],
+    confirmed:'⚠️ 条件版本 v1 尚未完成部门确认，暂不能作为解析与筛选依据（BR-02）'
+  },
+  {
+    id:'J3', name:'产品经理（B端）', dept:'商业化事业部', status:'挂起',
+    headcount:1, received:0, owner:'张晓', requester:'刘总监（商业化）',
+    posted:'2026-09-02', version:'v1', clarifyNeeded:false,
+    desc:'负责商业化产品的需求分析与方案设计，协同产研团队推进落地。',
+    criteria:[
+      {dim:'技术栈 30%',tag:'blue',items:['熟悉 B 端产品方法论']},
+      {dim:'项目经验 40%',tag:'purple',items:['3 年以上 B 端产品经验']},
+      {dim:'软技能 30%',tag:'green',items:['跨团队沟通与推动']}
+    ],
+    clarifyLog:[
+      {q:'该岗位目前是否继续推进？',a:'预算尚未批复，先挂起，暂不做硬性投递（PRD R28）。',t:'2026-09-20 11:00 · 刘总监 已回复',state:'done'}
+    ],
+    confirmed:'确认人：刘总监（用人部门） · 2026-09-05 10:00 · 条件版本 v1 已生效'
+  },
+  {
+    id:'J4', name:'行政专员', dept:'人力资源部', status:'结束',
+    headcount:1, received:11, owner:'张晓', requester:'周姐（人事）',
+    posted:'2026-08-01', version:'v1', clarifyNeeded:false,
+    desc:'负责办公行政事务支持与固定资产管理。',
+    criteria:[
+      {dim:'经验 50%',tag:'purple',items:['1 年以上行政相关经验']},
+      {dim:'软技能 50%',tag:'green',items:['细致耐心、服务意识']}
+    ],
+    clarifyLog:[{q:'是否需要 driving 本？',a:'不需要。',t:'2026-08-02 15:00 · 已回复',state:'done'}],
+    confirmed:'确认人：周姐（人事） · 2026-08-03 09:00 · 候选人已实际入职，需求提出人已确认需求结束（R32）'
+  }
+];
+
+const resumes = [
+  {
+    id:'R1', name:'张伟', years:'8 年', score:86, grade:'A', job:'高级前端工程师',
+    status:'待核对', submitted:'—',
+    tags:['Vue3','TypeScript','微前端','性能优化','工程化建设','团队协作'],
+    summary:'8 年前端经验，现杭州云启科技高级前端工程师，主导微前端架构改造与工程化体系建设。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'主导基于 Vue3 + TypeScript 的微前端架构改造，落地 5 个子应用，覆盖公司 3 条核心产品线。',src:'工作经历 · 杭州云启科技 2021.03–至今'},
+      {item:'技术栈 · 工程化经验',result:'✓ 符合',cls:'ok',evi:'搭建 Vite monorepo 工程体系，统一构建规范，本地构建时间由 8 分钟降至 90 秒。',src:'项目经历 · 前端工程化专项'},
+      {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'8 年前端开发经验（2018 年至今），先后就职于 2 家互联网公司。',src:'基本信息 / 工作经历'},
+      {item:'项目经验 · 从 0 到 1',result:'✓ 符合',cls:'ok',evi:'从 0 到 1 主导 SaaS 客户管理平台，服务企业客户 1200+，担任前端负责人。',src:'项目经历 · SaaS 客户管理平台 2022'},
+      {item:'软技能 · 沟通协作',result:'✓ 符合',cls:'ok',evi:'组织跨部门需求评审 30+ 场，牵头制定前后端联调规范并被 3 个团队采纳。',src:'自我评价 / 项目经历'},
+      {item:'软技能 · 跨团队推动',result:'⚠ 信息不足',cls:'miss',evi:'简历未提供跨团队推动的具体案例，按规则标记「信息不足」而非「不具备」，建议面试或补充材料核实。',src:'—（简历中未提及）'}
+    ],
+    questions:[
+      {txt:'2020.06–2021.02 存在 8 个月空窗期，需核实原因。',done:false},
+      {txt:'「服务企业客户 1200+」的项目规模与本人实际承担角色需进一步确认。',done:false},
+      {txt:'期望薪资 35K–40K，高于岗位预算上限（32K），需与部门确认弹性。',done:false}
+    ],
+    draftReason:'候选人有 8 年前端经验，精通 Vue3 + TypeScript，主导过大型 SaaS 平台从 0 到 1，工程化能力突出（构建效率提升 5 倍以上）。对照已确认条件 v2：5 项符合、1 项信息不足，整体匹配度优秀。',
+    draftGap:'期望薪资 35K–40K 高于岗位预算 32K；「跨团队推动」简历未展开具体案例，需面试环节确认。',
+    log:'2026-10-22 09:15 李婷 上传并解析成功'
+  },
+  {
+    id:'R2', name:'王芳', years:'6 年', score:79, grade:'B', job:'高级前端工程师',
+    status:'待核对', submitted:'—',
+    tags:['React','TypeScript','组件库建设','可视化'],
+    summary:'6 年前端经验，深度使用 React 技术栈，负责内部组件库与数据可视化平台建设。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'6 年 React 开发经验，主导公司级 React 组件库（60+ 组件）设计与维护。',src:'工作经历 · 明途信息 2020.07–至今'},
+      {item:'技术栈 · 工程化经验',result:'✓ 符合',cls:'ok',evi:'基于 webpack 搭建组件库按需加载与文档站自动生成方案。',src:'项目经历 · 内部组件库'},
+      {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'6 年前端开发经验（2019 至今）。',src:'基本信息'},
+      {item:'项目经验 · 从 0 到 1',result:'⚠ 信息不足',cls:'miss',evi:'简历中项目均为「参与/负责模块」，未明确「从 0 到 1 主导」的大型项目，需补充核实。',src:'—（简历表述未达明确）'},
+      {item:'软技能 · 沟通协作',result:'✓ 符合',cls:'ok',evi:'推动组件库在 4 个业务线接入，编写接入文档并组织 3 场分享。',src:'项目经历 · 组件库推广'},
+      {item:'软技能 · 跨团队推动',result:'✓ 符合',cls:'ok',evi:'协调设计、后端团队完成设计令牌（Design Token）规范落地。',src:'项目经历 · 设计规范专项'}
+    ],
+    questions:[
+      {txt:'是否主导过完整项目从 0 到 1？简历未明确，需电话核实。',done:false}
+    ],
+    draftReason:'候选人 6 年 React 经验扎实，组件库建设与跨团队推广经验突出，对照条件 5 项符合、1 项信息不足。',
+    draftGap:'「从 0 到 1 主导大型项目」一项暂无明确证据，如部门认为该硬性条件必须满足，需先核实再决定。',
+    log:'2026-10-22 10:02 李婷 上传并解析成功'
+  },
+  {
+    id:'R3', name:'李强', years:'5 年', score:74, grade:'B', job:'高级前端工程师',
+    status:'待核对', submitted:'—',
+    tags:['Vue2/Vue3','小程序','多端适配'],
+    summary:'5 年前端经验，以 Vue 技术栈为主，偏业务开发与多端小程序，工程化深度一般。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'5 年 Vue 系列开发经验，负责营销活动与会员中台前端。',src:'工作经历 · 启航网络 2021–至今'},
+      {item:'技术栈 · 工程化经验',result:'⚠ 信息不足',cls:'miss',evi:'仅提及使用团队已有脚手架，未见工程化建设类成果描述，需核实。',src:'—（简历中未提及）'},
+      {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'5 年前端开发经验（2020 至今）。',src:'基本信息'},
+      {item:'项目经验 · 从 0 到 1',result:'✓ 符合',cls:'ok',evi:'独立负责会员中台小程序端从立项到上线全流程。',src:'项目经历 · 会员中台'},
+      {item:'软技能 · 沟通协作',result:'✓ 符合',cls:'ok',evi:'与产品、设计协作完成 20+ 次活动迭代，按时交付率 100%。',src:'工作经历描述'},
+      {item:'软技能 · 跨团队推动',result:'⚠ 信息不足',cls:'miss',evi:'简历未提及跨团队推动案例，标记「信息不足」。',src:'—（简历中未提及）'}
+    ],
+    questions:[
+      {txt:'工程化经验深度需电话核实（是否参与过构建优化、规范制定）。',done:false},
+      {txt:'多端小程序经验与岗位「大型 Web 项目」的匹配度需与部门确认。',done:false}
+    ],
+    draftReason:'候选人 5 年 Vue 经验满足年限硬性条件，业务交付稳定，但工程化与跨团队推动证据不足。',
+    draftGap:'工程化深度、跨团队推动两项信息不足；若部门重视工程化，匹配度可能下降。',
+    log:'2026-10-22 11:30 李婷 上传并解析成功'
+  },
+  {
+    id:'R4', name:'陈晨', years:'3 年', score:66, grade:'C', job:'高级前端工程师',
+    status:'待核对', submitted:'—',
+    tags:['React','高并发场景','性能优化'],
+    summary:'3 年前端经验，但经历亮眼：参与过百万级 DAU 产品性能优化专项。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'3 年 React 开发经验，参与直播中台研发。',src:'工作经历 · 星潮互娱 2023–至今'},
+      {item:'技术栈 · 工程化经验',result:'⚠ 信息不足',cls:'miss',evi:'简历未提及工程化相关实践。',src:'—（简历中未提及）'},
+      {item:'项目经验 · 5 年以上（硬性）',result:'✗ 不符合',cls:'miss',evi:'总工作年限 3 年，不满足「5 年以上、不接收 3 年」的硬性条件（R13）。',src:'基本信息'},
+      {item:'项目经验 · 从 0 到 1',result:'⚠ 信息不足',cls:'miss',evi:'未提及主导从 0 到 1 项目。',src:'—（简历中未提及）'},
+      {item:'软技能 · 沟通协作',result:'✓ 符合',cls:'ok',evi:'与后端协作完成直播间消息链路优化。',src:'项目经历'},
+      {item:'软技能 · 跨团队推动',result:'⚠ 信息不足',cls:'miss',evi:'简历未提及。',src:'—（简历中未提及）'}
+    ],
+    questions:[
+      {txt:'工作年限不满足部门确认的硬性条件，是否仍推荐需专员人工判断（系统不自动淘汰，PRD E2）。',done:false}
+    ],
+    draftReason:'（AI 提示：候选人年限不满足硬性条件，但高并发性能优化经历突出。是否推荐由专员人工决定，系统不做拦截。）',
+    draftGap:'硬性条件「5 年以上经验」不满足；优势为百万级 DAU 产品性能优化经历。',
+    log:'2026-10-22 13:45 李婷 上传并解析成功'
+  },
+  {
+    id:'R5', name:'刘洋', years:'7 年', score:84, grade:'A', job:'高级前端工程师',
+    status:'已推荐待部门决定', submitted:'李婷 · 2026-10-19',
+    tags:['React','Node.js','全栈','架构设计'],
+    summary:'7 年经验，React + Node 全栈背景，有大型中台架构设计经验。已由专员人工提交推荐，等待部门反馈。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'7 年 React 开发经验，同时具备 Node.js BFF 层建设经验。',src:'工作经历 · 长云科技 2019–至今'},
+      {item:'技术栈 · 工程化经验',result:'✓ 符合',cls:'ok',evi:'主导 CI/CD 流水线优化，发布效率提升 60%。',src:'项目经历 · 研发效能专项'},
+      {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'7 年前端开发经验。',src:'基本信息'},
+      {item:'项目经验 · 从 0 到 1',result:'✓ 符合',cls:'ok',evi:'从 0 到 1 搭建公司运营活动中台，支撑 50+ 场活动。',src:'项目经历 · 运营中台'},
+      {item:'软技能 · 沟通协作',result:'✓ 符合',cls:'ok',evi:'牵头 3 个团队的中台接入协调。',src:'项目经历'},
+      {item:'软技能 · 跨团队推动',result:'✓ 符合',cls:'ok',evi:'推动测试、运维共建自动化回归方案。',src:'项目经历 · 研发效能专项'}
+    ],
+    questions:[
+      {txt:'期望薪资需面谈确认（简历未写）。',done:true}
+    ],
+    draftReason:'候选人 7 年经验，React + Node 全栈，中台架构与跨团队推动经验完整，6 项条件全部符合。',
+    draftGap:'简历未写期望薪资，需面谈确认；无明显硬伤。',
+    log:'2026-10-19 15:20 李婷 人工提交推荐（AI 草稿已修改）'
+  },
+  {
+    id:'R6', name:'赵敏', years:'4 年', score:58, grade:'C', job:'高级前端工程师',
+    status:'人工不推荐', submitted:'—',
+    tags:['jQuery','传统前端'],
+    summary:'4 年经验，技术栈以 jQuery / 传统多页应用为主，与岗位已确认条件差距较大。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✗ 不符合',cls:'miss',evi:'简历技术栈为 jQuery + Bootstrap，未提及 React / Vue。',src:'技能清单'},
+      {item:'项目经验 · 5 年以上（硬性）',result:'✗ 不符合',cls:'miss',evi:'工作年限 4 年，不满足硬性条件。',src:'基本信息'}
+    ],
+    questions:[],
+    draftReason:'—（专员决定不推荐，AI 草稿未使用）',
+    draftGap:'—',
+    log:'2026-10-22 14:10 李婷 人工标记「不推荐」并留痕（非 AI 淘汰）'
+  },
+  {
+    id:'R7', name:'黄磊', years:'7 年', score:82, grade:'A', job:'高级前端工程师',
+    status:'待核对', submitted:'—',
+    tags:['Vue3','可视化','开源贡献'],
+    summary:'（模拟上传后新增）7 年经验，Vue3 + 数据可视化方向，GitHub 开源项目 1.2k star。',
+    matches:[
+      {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'7 年 Vue 开发经验，维护开源图表库（1.2k star）。',src:'工作经历 / 开源经历'},
+      {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'7 年前端开发经验。',src:'基本信息'},
+      {item:'软技能 · 跨团队推动',result:'⚠ 信息不足',cls:'miss',evi:'简历未提及，需核实。',src:'—（简历中未提及）'}
+    ],
+    questions:[
+      {txt:'开源项目维护投入与到岗后工作精力的平衡，需面谈了解。',done:false}
+    ],
+    draftReason:'候选人 7 年 Vue 经验，有高质量开源贡献，技术影响力突出。',
+    draftGap:'跨团队推动证据不足；开源维护的时间投入需面谈确认。',
+    log:'刚刚 · 李婷 上传并解析成功'
+  }
+];
+
+let recSeq = 100;
+const recommendations = [
+  {
+    id:'REC-1024', cand:'刘洋', job:'高级前端工程师（技术部 · 前端组）', resumeId:'R5',
+    submittedBy:'李婷', submittedAt:'2026-10-19 15:20', waitDays:5, status:'待部门决定',
+    reason:'候选人 7 年经验，React + Node 全栈，主导运营活动中台从 0 到 1（支撑 50+ 场活动），CI/CD 优化使发布效率提升 60%，跨团队推动经验完整，6 项条件全部符合。',
+    gap:'简历未写期望薪资，需面谈确认；无明显硬伤。',
+    pendingQ:['期望薪资需面谈确认（简历未写）。'],
+    feedback:null
+  },
+  {
+    id:'REC-1023', cand:'周杰', job:'数据分析师（数据中台）', resumeId:null,
+    submittedBy:'李婷', submittedAt:'2026-10-20 10:05', waitDays:4, status:'待部门决定',
+    reason:'候选人 4 年电商行业数据分析经验，精通 SQL 与 Python，主导过 GMV 归因分析专项，产出口径被 3 条业务线采用。',
+    gap:'数仓建设经验简历中未提及（该岗位此条件尚在澄清中）。',
+    pendingQ:['数仓经验是否为必备条件仍在与部门澄清中。'],
+    feedback:null
+  },
+  {
+    id:'REC-1017', cand:'孙倩', job:'高级前端工程师（技术部 · 前端组）', resumeId:null,
+    submittedBy:'李婷', submittedAt:'2026-10-15 11:30', waitDays:0, status:'已同意面试',
+    reason:'候选人 6 年 React 经验，组件库与可视化方向，与岗位条件匹配度高。',
+    gap:'期望薪资略高于预算，需面谈沟通。',
+    pendingQ:[],
+    feedback:{type:'同意面试',detail:'同意安排面试，下周三下午可约，先安排一轮技术面。',by:'王总监（技术部）',at:'2026-10-17 09:40'}
+  },
+  {
+    id:'REC-1012', cand:'吴迪', job:'数据分析师（数据中台）', resumeId:null,
+    submittedBy:'李婷', submittedAt:'2026-10-13 16:00', waitDays:0, status:'已拒绝',
+    reason:'候选人 3 年数据分析经验，以取数报表为主，有 Python 自动化脚本经验。',
+    gap:'缺乏业务归因分析类项目经验。',
+    pendingQ:[],
+    feedback:{type:'已拒绝',detail:'项目经验与数据建模方向不符，团队更需要 SQL + 数仓背景的候选人，建议关注数仓方向简历。',by:'陈经理（数据中台）',at:'2026-10-14 10:20'}
+  },
+  {
+    id:'REC-1009', cand:'郑爽', job:'数据分析师（数据中台）', resumeId:null,
+    submittedBy:'李婷', submittedAt:'2026-10-12 09:40', waitDays:0, status:'待补充',
+    reason:'候选人 5 年经验，金融风控数据分析背景，SQL 与建模能力强。',
+    gap:'业务域与本公司差异较大，需补充对电商业务的理解案例。',
+    pendingQ:['需补充电商业务分析案例。'],
+    feedback:{type:'待补充',detail:'请补充：1）一份数据建模相关项目说明材料；2）候选人从金融转电商的动机说明。',by:'陈经理（数据中台）',at:'2026-10-13 15:00'}
+  }
+];
+
+/* =====================================================================
+   部门反馈通知（推送给招聘专员 / 招聘经理）
+===================================================================== */
+let notifSeq = 3;
+let notifications = [
+  {id:'N3', recId:'REC-1017', cand:'孙倩', type:'已同意面试', by:'王总监', text:'同意安排面试，建议先进行一轮技术面，时间可约下周三下午', time:'10-17 09:40', read:false},
+  {id:'N2', recId:'REC-1012', cand:'吴迪', type:'已拒绝', by:'陈经理', text:'项目经验与数据建模方向不符，团队更需要 SQL + 数仓背景', time:'10-14 10:20', read:false},
+  {id:'N1', recId:'REC-1009', cand:'郑爽', type:'待补充', by:'陈经理', text:'请补充数据建模相关项目说明材料，并说明从金融转电商的动机', time:'10-13 15:00', read:true}
+];
+const unreadCount = () => notifications.filter(n=>!n.read).length;
+
+function renderBell(){
+  const n = unreadCount();
+  const dot = $('#bell-dot');
+  if(dot){
+    dot.style.display = n>0 ? '' : 'none';
+    dot.textContent = n>9?'9+':n;
+  }
+  const navBadge = $('#nav-fb-badge');
+  if(navBadge){
+    navBadge.style.display = (canReceiveFeedback() && n>0) ? '' : 'none';
+    navBadge.textContent = n;
+  }
+}
+function renderNotifPanel(){
+  if(!canReceiveFeedback()){
+    $('#panel-notif').innerHTML = '<div class="nf-empty">当前账号（'+(currentUser?currentUser.role:'')+'）不接收部门反馈<br>面试反馈会推送给招聘专员与招聘经理</div>';
+    return;
+  }
+  $('#panel-notif').innerHTML = `
+    <div class="ap-head"><b>部门反馈通知</b>${unreadCount()>0?'共 '+unreadCount()+' 条未读':'全部已读'} · 点击查看对应推荐</div>
+    ${notifications.length? notifications.map(n=>`
+      <div class="nf-item ${n.read?'':'unread'}" onclick="openNotif('${n.id}')">
+        <div class="nf-top">
+          <b>${n.cand} · ${n.type}</b><span class="nf-time">${n.time}</span>
+        </div>
+        <div class="nf-detail">${n.by}：${n.text}</div>
+      </div>`).join('') : '<div class="nf-empty">暂无部门反馈</div>'}
+    <div class="ap-foot">反馈只来自用人部门的主动提交，系统不会代为决策</div>`;
+}
+function openNotif(nid){
+  const n = notifications.find(x=>x.id===nid);
+  if(!n) return;
+  n.read = true;
+  closePanels();
+  navTo('feedback');
+  if(n.hireId){
+    switchFbTab('hire');
+    currentHire = n.hireId;
+    openHire(n.hireId);
+    toast('已定位到「'+n.cand+'」的用人结果反馈','info');
+  } else {
+    if(recommendations.find(r=>r.id===n.recId)) openRec(n.recId);
+    toast('已定位到「'+n.cand+'」的部门反馈记录','info');
+  }
+  renderBell();
+}
+function pushFeedbackNotif(rec, type, text){
+  notifications.unshift({id:'N'+(++notifSeq), recId:rec.id, cand:rec.cand, type, by:actorName(), text, time:'刚刚', read:false});
+  renderBell();
+}
+
+/* =====================================================================
+   用人结果反馈（候选人入职一段时间后，由部门经理/面试官回评）
+===================================================================== */
+let hireSeq = 4;
+let fbTab = 'rec';          // 当前反馈页签：rec=简历推荐反馈 / hire=用人结果反馈
+let currentHire = 'ON1';    // 当前查看的入职候选人
+let onboarded = [
+  {id:'ON1', cand:'孙倩', job:'高级前端工程师', dept:'技术部 · 前端组', onboard:'2026-08-12', days:73,
+   referrer:'李婷', refRec:'REC-1017', owner:'王总监', status:'待反馈', feedback:null},
+  {id:'ON2', cand:'林可', job:'数据分析师', dept:'数据中台', onboard:'2026-07-05', days:111,
+   referrer:'张晓', refRec:null, owner:'陈经理', status:'已反馈',
+   feedback:{rating:'优秀', text:'入职两周即独立承接 GMV 归因看板，业务理解与跨部门沟通均超预期；面试时判断的「SQL 熟练度」完全成立。', align:'与面试判断一致', by:'陈经理（数据中台）', at:'2026-10-10 16:20'}},
+  {id:'ON3', cand:'何俊', job:'高级前端工程师', dept:'技术部 · 前端组', onboard:'2026-09-20', days:34,
+   referrer:'李婷', refRec:null, owner:'王总监', status:'待反馈', feedback:null},
+  {id:'ON4', cand:'周宇', job:'高级前端工程师', dept:'技术部 · 前端组', onboard:'2026-10-10', days:14,
+   referrer:'李婷', refRec:null, owner:'王总监', status:'待反馈', feedback:null, lockDays:30}
+];
+const HIRE_MIN_DAYS = 30; // 建议观察期阈值（待业务确认 C4 相关口径）
+
+function visibleOnboarded(){
+  if(canGiveHireFeedback()) return onboarded.filter(o=>currentUser && o.dept===currentUser.dept);
+  return onboarded;
+}
+function pendingHireCount(){ return visibleOnboarded().filter(o=>o.status==='待反馈' && !(o.lockDays && o.days<o.lockDays)).length; }
+function updateTabNums(){
+  const recNum = canDecide() ? recommendations.filter(r=>r.status==='待部门决定').length : (canReceiveFeedback()?unreadCount():0);
+  const hireNum = canGiveHireFeedback() ? pendingHireCount() : 0;
+  if($('#tab-rec-num')) $('#tab-rec-num').textContent = recNum;
+  if($('#tab-hire-num')){ $('#tab-hire-num').textContent = hireNum; $('#tab-hire-num').style.display = hireNum>0?'':'none'; }
+}
+function switchFbTab(tab){
+  fbTab = tab;
+  $('#fb-tab-rec').style.display = tab==='rec'?'':'none';
+  $('#fb-tab-hire').style.display = tab==='hire'?'':'none';
+  $('#tab-btn-rec').classList.toggle('active', tab==='rec');
+  $('#tab-btn-hire').classList.toggle('active', tab==='hire');
+  if(tab==='hire'){ renderHireList(); if(currentHire) openHire(currentHire); }
+  else { renderFbList(); if(currentRec) openRec(currentRec); }
+}
+function renderHireList(){
+  const list = visibleOnboarded();
+  const pend = list.filter(o=>o.status==='待反馈').length;
+  if($('#hire-pending-count')) $('#hire-pending-count').textContent = pend;
+  updateTabNums();
+  $('#hire-list').innerHTML = list.length ? list.map(o=>`
+    <div class="hire-item ${o.id===currentHire?'active':''}" onclick="openHire('${o.id}')">
+      <div class="h-top"><b>${o.cand}</b>${
+        o.status==='已反馈' ? '<span class="tag green">已反馈</span>'
+        : (o.lockDays && o.days<o.lockDays) ? '<span class="tag gray">观察期未满</span>'
+        : '<span class="tag orange">待反馈</span>'}</div>
+      <div class="h-meta">${o.job} · ${o.dept}</div>
+      <div class="h-meta">入职 ${o.onboard} · 已入职 <b>${o.days} 天</b> · 推荐人：${o.referrer}</div>
+    </div>`).join('') : '<div class="empty">本部门暂无已入职候选人</div>';
+}
+function openHire(id){
+  currentHire = id; renderHireList();
+  const o = onboarded.find(x=>x.id===id);
+  if(!o){ $('#hire-detail').innerHTML='<div class="card"><div class="empty">请选择左侧候选人</div></div>'; return; }
+  const mine = currentUser && o.dept===currentUser.dept;
+  const locked = o.lockDays && o.days<o.lockDays;
+  const canWrite = canGiveHireFeedback() && mine && !locked && o.status!=='已反馈';
+
+  let body = '';
+  if(o.status==='已反馈'){
+    const f = o.feedback;
+    body = `<div class="decided-strip ok" style="margin-top:16px;">
+      <b>用人结果：${f.rating}</b> · ${f.align}<br>${f.text}<br>
+      <span style="font-size:12px;opacity:.8;">反馈人：${f.by} · ${f.at} · 已同步给推荐人「${o.referrer}」</span>
+    </div>`;
+  } else if(canWrite){
+    body = `
+      <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+        <div class="field"><label>用人结果评级 <span class="req">*</span></label>
+          <div class="rate-group" id="rate-group">
+            ${['优秀','符合预期','基本符合','不符合期望'].map(r=>`<span class="rate-opt" data-r="${r}" onclick="pickRate(this)">${r}</span>`).join('')}
+          </div>
+        </div>
+        <div class="field"><label>具体评价（实际表现、与面试判断的对照） <span class="req">*</span></label>
+          <textarea id="hire-text" rows="4" placeholder="例：上手速度与面试判断一致，独立负责模块交付；不足在于跨团队沟通偏被动。"></textarea>
+        </div>
+        <div class="field"><label>与面试判断的一致性</label>
+          <select id="hire-align">
+            <option>与面试判断一致</option>
+            <option>部分偏差</option>
+            <option>明显偏差</option>
+          </select>
+          <div class="hint">用于双轨验证与筛选标准校准（PRD M5）</div>
+        </div>
+        <button class="btn btn-primary" onclick="submitHireFeedback('${o.id}')">提交用人结果反馈并通知推荐人</button>
+        <span style="font-size:12px;color:var(--text3);margin-left:8px;">提交后将推送至推荐人「${o.referrer}」</span>
+      </div>`;
+  } else {
+    body = `<div class="decided-strip sup" style="margin-top:16px;">
+      🔒 ${locked
+        ? '该候选人入职仅 '+o.days+' 天，建议观察满 '+o.lockDays+' 天后再回评（阈值待业务确认，系统仅提示不阻断面试官线下评估）。'
+        : !mine
+          ? '仅本部门（'+o.dept+'）的部门经理与面试官可提交用人结果反馈。'
+          : '当前角色无用人结果反馈权限（招聘专员/招聘经理/管理员不可回评用人结果）。'}</div>`;
+  }
+
+  $('#hire-detail').innerHTML = `
+    <div class="card">
+      <h3>${o.cand} <span class="tag gray">入职 ${o.days} 天</span> ${o.status==='已反馈'?'<span class="tag green">已反馈</span>':'<span class="tag orange">待反馈</span>'}</h3>
+      <div class="mat-block"><b class="lbl">👤 入职信息</b>${o.job} · ${o.dept}<br>入职日期：${o.onboard} ｜ 招聘专员（推荐人）：${o.referrer} ｜ 部门经理：${o.owner}</div>
+      <div class="mat-block"><b class="lbl">🔁 流程</b>部门同意面试 → 面试通过 → 候选人入职 → 用人一段时间后回评（本环节）→ 反馈直达推荐人，用于判断筛选是否准确。</div>
+      <div class="ai-note">用人结果反馈只由用人部门（部门经理 / 面试官）主观填写，系统不做任何自动评价；评价将回流给推荐人做筛选校准。</div>
+      ${body}
+    </div>`;
+}
+function pickRate(el){
+  document.querySelectorAll('#rate-group .rate-opt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  window._ratePick = el.dataset.r;
+}
+function submitHireFeedback(id){
+  if(!requireAny(['deptmgr','interviewer'],'用人结果反馈')) return;
+  const o = onboarded.find(x=>x.id===id);
+  if(!o || !currentUser || o.dept!==currentUser.dept){ toast('仅本部门人员可回评该候选人','error'); return; }
+  if(o.lockDays && o.days<o.lockDays){ toast('入职未满 '+o.lockDays+' 天，暂不建议回评（观察期阈值）','error'); return; }
+  const rating = window._ratePick;
+  const text = $('#hire-text').value.trim();
+  const align = $('#hire-align').value;
+  if(!rating){ toast('请选择用人结果评级','error'); return; }
+  if(!text){ toast('具体评价为必填项','error'); return; }
+  o.status='已反馈';
+  o.feedback={rating, text, align, by: actorName()+'（'+deptShort()+'）', at:'刚刚'};
+  window._ratePick = null;
+  // 推送给推荐人（招聘专员）
+  notifications.unshift({id:'N'+(++notifSeq), recId:null, hireId:o.id, cand:o.cand, type:'用人结果反馈',
+    by:actorName(), text:'用人结果：'+rating+' · '+align+'。'+text, time:'刚刚', read:false});
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'提交用人结果反馈',target:o.cand,extra:rating+' · '+align,key:'dept'});
+  renderBell(); renderHireList(); openHire(id); renderDashboardHire();
+  toast('用人结果已提交，并推送至推荐人「'+o.referrer+'」');
+}
+
+/* =====================================================================
+   工具函数
+===================================================================== */
+const $ = s => document.querySelector(s);
+const pageTitles = {jobs:'岗位需求工作台',resumes:'简历筛选与核对工作台',feedback:'部门反馈工作台',dashboard:'数据看板与流程监控',platform:'平台管理'};
+const statusTag = st => {
+  const map = {
+    '进行中':'green','挂起':'orange','结束':'gray',
+    '待核对':'blue','待推荐':'blue','已推荐待部门决定':'orange','人工不推荐':'gray',
+    '已同意面试':'green','已拒绝':'red','待补充':'purple','待部门决定':'orange'
+  };
+  return '<span class="tag '+(map[st]||'gray')+'">'+st+'</span>';
+};
+function toast(msg,type){
+  type = type||'success';
+  const el = document.createElement('div');
+  el.className = 'toast '+type;
+  el.innerHTML = (type==='error'?'⚠️ ':type==='info'?'💡 ':'✅ ')+msg;
+  $('#toasts').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},2800);
+}
+function openModal(html){ $('#modal-box').innerHTML = html; $('#modal-mask').classList.add('show'); }
+function closeModal(){ $('#modal-mask').classList.remove('show'); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'&#10;'); }
+
+/* =====================================================================
+   导航
+===================================================================== */
+let currentPage = 'jobs';        // 当前所在页面
+let currentUser = null;          // 当前登录用户（来自平台账号列表）
+let currentRole = 'specialist';  // 权限身份：specialist / dept / manager / admin
+const ROLE_PERM = {'平台管理员':'admin','招聘专员':'specialist','招聘经理':'manager','用人部门经理':'deptmgr','用人部门面试官':'interviewer'};
+const actorName = () => currentUser ? currentUser.name : '李婷';
+
+/* —— 用人部门内部细分权限（PRD R4 + 本次新增规则） —— */
+const isDeptMgr = () => currentRole==='deptmgr';
+const isInterviewer = () => currentRole==='interviewer';
+const canDecide = () => isDeptMgr();                               // 面试决定：仅用人部门经理
+const canPublishJob = () => isDeptMgr();                           // 发布岗位需求：仅用人部门经理
+const canAssignInterviewer = () => isDeptMgr();                    // 指派面试官：仅用人部门经理（限本部门）
+const canGiveHireFeedback = () => isDeptMgr() || isInterviewer();  // 用人结果反馈：部门经理 + 面试官
+
+function navTo(page){
+  // 平台管理页仅平台管理员可进入
+  if(page==='platform' && currentRole!=='admin'){
+    toast('权限不足：「平台管理」仅平台管理员可访问','error');
+    return;
+  }
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  $('#page-'+page).classList.add('show');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  $('#page-title').textContent = pageTitles[page];
+  if(page==='dashboard'){ renderAlerts(); renderDashboardHire(); }
+  if(page==='resumes') renderResumeList();
+  if(page==='feedback'){ renderFbList(); renderHireList(); switchFbTab(fbTab); }
+  if(page==='platform') renderPlatform();
+}
+
+/* —— 折叠面板控制 —— */
+function togglePanel(name, ev){
+  if(ev) ev.stopPropagation();
+  const panel = $('#panel-'+name);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));
+  if($('#acc-caret')) $('#acc-caret').classList.remove('open');
+  if(!isOpen){
+    panel.classList.add('open');
+    if(name==='account'){ renderAccountPanel(); $('#acc-caret').classList.add('open'); }
+    if(name==='notif') renderNotifPanel();
+  }
+}
+function closePanels(){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));
+  if($('#acc-caret')) $('#acc-caret').classList.remove('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.dd')) closePanels();
+});
+
+/* —— 账号面板：列出可登录账号，停用/待激活不可登录 —— */
+function renderAccountPanel(){
+  const enabled = users.filter(u=>u.status==='启用').length;
+  $('#panel-account').innerHTML = `
+    <div class="ap-head"><b>切换登录账号</b>共 ${users.length} 个账号 · 仅「启用」状态可登录（${enabled} 个）</div>
+    <div class="ap-list">
+      ${users.map(u=>`
+        <div class="ap-item ${currentUser&&u.id===currentUser.id?'active':''} ${u.status==='启用'?'':'disabled'}" onclick="loginAs('${u.id}')">
+          <span class="avatar">${u.name.slice(0,1)}</span>
+          <div class="ap-info">
+            <b>${u.name}${currentUser&&u.id===currentUser.id?' <span style="color:var(--primary);font-size:11px;">· 当前登录</span>':''}</b>
+            <small>${u.role} · ${u.dept}</small>
+          </div>
+          ${u.status==='启用'?'':`<span class="tag ${u.status==='停用'?'gray':'orange'}" style="font-size:11px;">${u.status}</span>`}
+        </div>`).join('')}
+    </div>
+    <div class="ap-foot">账号由平台管理员创建与停用 · 停用或待激活的账号无法登录</div>`;
+}
+
+/* —— 行登录（账号即登录凭证） —— */
+function loginAs(uid){
+  const u = users.find(x=>x.id===uid);
+  if(!u) return;
+  if(u.status==='停用'){
+    toast('账号「'+u.name+'」已停用，无法登录，请联系平台管理员','error');
+    closePanels(); return;
+  }
+  if(u.status==='待激活'){
+    toast('账号「'+u.name+'」尚未激活，无法登录（激活通知已发送至 '+u.account+'）','error');
+    closePanels(); return;
+  }
+  if(currentUser && u.id===currentUser.id){ closePanels(); toast('当前已是「'+u.name+'」登录状态','info'); return; }
+  currentUser = u;
+  currentRole = u.perm || ROLE_PERM[u.role] || 'specialist';
+  closePanels();
+  updateAccountUI();
+  // 菜单级权限：平台管理仅管理员可见
+  $('#nav-platform').style.display = currentRole==='admin' ? '' : 'none';
+  if(currentRole!=='admin' && currentPage==='platform') navTo('dashboard');
+  refreshCurrentPage();
+  toast('已登录：'+u.name+'（'+u.role+'）','info');
+  if(canReceiveFeedback() && unreadCount()>0){
+    setTimeout(()=>toast('🔔 您有 '+unreadCount()+' 条新的部门反馈待查看','info'),350);
+  }
+}
+function refreshCurrentPage(){
+  if(currentPage==='resumes'){
+    renderResumeList();
+    if(currentResume && $('#resume-detail-view').classList.contains('show')) openResume(currentResume);
+  }
+  if(currentPage==='feedback'){
+    renderFbList();
+    if(currentRec) openRec(currentRec);
+    renderHireList();
+    if(currentHire && fbTab==='hire') openHire(currentHire);
+    switchFbTab(fbTab);
+  }
+  if(currentPage==='jobs') openJob(currentJob);
+  if(currentPage==='dashboard'){ renderAlerts(); renderDashboardHire(); }
+  if(currentPage==='platform') renderPlatform();
+  renderBell();
+}
+function updateAccountUI(){
+  if(!currentUser) return;
+  $('#acc-avatar').textContent = currentUser.name.slice(0,1);
+  $('#acc-name').textContent = currentUser.name;
+  $('#acc-sub').textContent = currentUser.role + ' · ' + currentUser.dept;
+  // 通知铃铛：仅招聘专员与招聘经理接收部门反馈
+  $('#dd-bell').style.display = canReceiveFeedback() ? '' : 'none';
+  renderBell();
+}
+function canReceiveFeedback(){ return currentRole==='specialist' || currentRole==='manager'; }
+
+/* =====================================================================
+   页面 1：岗位需求工作台
+===================================================================== */
+let currentJob = 'J1';
+function renderJobs(){
+  $('#job-list').innerHTML = jobs.map(j=>`
+    <div class="job-item ${j.id===currentJob?'active':''}" onclick="openJob('${j.id}')">
+      <div class="j-top"><span class="j-name">${j.name}</span>${statusTag(j.status)}</div>
+      <div class="j-meta"><span>${j.dept}</span><span>招 ${j.headcount} 人</span><span>简历 ${j.received} 份</span></div>
+      <div class="j-meta" style="margin-top:5px;"><span>负责专员：${j.owner}</span><span>需求提出人：${j.requester}</span></div>
+    </div>`).join('');
+  // 发布岗位入口：仅用人部门经理可见（本部门岗位由本人发起）
+  $('#job-actions').innerHTML = canPublishJob()
+    ? '<button class="btn btn-primary btn-sm" onclick="openPublishJobModal()">＋ 发布岗位需求</button>'
+    : '<span style="font-size:12px;color:var(--text3);">点击岗位查看已确认条件'+(isInterviewer()?' · 发布岗位仅部门经理可操作':'')+'</span>';
+}
+function openJob(id){
+  currentJob = id; renderJobs();
+  const j = jobs.find(x=>x.id===id);
+  const w = j.weights || {tech:40,proj:30,soft:30};
+  $('#job-detail').innerHTML = `
+    <div class="card">
+      <h3>${j.name} <span class="tag gray">条件版本 ${j.version}</span> ${statusTag(j.status)}</h3>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:14px;">${j.desc}</p>
+      ${j.clarifyNeeded?`
+      <div class="clarify-banner">
+        ⚠️ 该岗位需求描述不清晰（含「最好」「大概」等模糊表述），按 PRD R6 必须发起澄清问询，澄清完成并经部门确认前不可进入简历筛选。
+        ${currentRole==='specialist'
+          ? `<button class="btn btn-warn btn-sm" style="margin-left:auto;flex-shrink:0;" onclick="openClarifyModal('${j.id}')">💬 发起澄清</button>`
+          : `<span style="margin-left:auto;flex-shrink:0;font-size:12px;">🔒 仅招聘专员可发起澄清</span>`}
+      </div>`:''}
+      <h3>🎯 已确认的岗位条件与权重</h3>
+      <div class="weights">
+        <div class="w-cell"><b>${w.tech}%</b><span>技术栈</span></div>
+        <div class="w-cell"><b>${w.proj}%</b><span>项目经验</span></div>
+        <div class="w-cell"><b>${w.soft}%</b><span>软技能</span></div>
+      </div>
+      <div class="ai-note" style="margin:0 0 12px;">权重 40/30/30 为建议值，是否全岗位通用待确认（PRD C2）。以下条件为部门确认版本，是 AI 解析与人工推荐的<b>唯一依据</b>。</div>
+      <ul class="criteria-list">
+        ${j.criteria.map(c=>`<li><span class="tag ${c.tag} c-tag">${c.dim}</span><span>${c.items.map(i=>'· '+i).join('<br>')}</span></li>`).join('')}
+      </ul>
+      <div class="confirm-strip">✔ ${j.confirmed}</div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <h3 style="margin:0;">👥 面试官团队（本部门）</h3>
+        ${(canAssignInterviewer() && currentUser && currentUser.dept===j.dept)
+          ? `<button class="btn btn-plain btn-sm" style="margin-left:auto;" onclick="openAssignModal('${j.id}')">＋ 指派面试官</button>`
+          : `<span class="tag gray" style="margin-left:auto;font-size:12px;">${canAssignInterviewer()?'指派权限：本部门岗位':'指派权限：该部门经理'}</span>`}
+      </div>
+      <div class="iv-chips">
+        ${(j.interviewers && j.interviewers.length)
+          ? j.interviewers.map(n=>`<span class="iv-chip"><span class="avatar">${n.slice(0,1)}</span>${n}</span>`).join('')
+          : '<span style="color:var(--text3);font-size:13px;">暂未指派面试官</span>'}
+      </div>
+      <div class="ai-note">仅可从<b>本部门（${j.dept}）</b>成员中指派面试官；被指派的面试官可在候选人入职一段时间后提交「用人结果反馈」，并同步给推荐人。</div>
+    </div>
+    <div class="card">
+      <h3>💬 需求澄清留痕记录（只读追加，不可删改）</h3>
+      ${j.clarifyLog.map(l=>`
+        <div class="qa-item ${l.state==='pending'?'pending':''}">
+          <div class="q">问：${l.q}</div>
+          ${l.a?`<div class="a">答：${l.a}</div>`:`<div class="a" style="color:var(--orange)">待需求提出人回复…</div>`}
+          <div class="t">${l.t}</div>
+        </div>`).join('')}
+      <div class="ai-note">澄清问答全程留痕（BR-03），解决「口头追问无记录、反复返工」的痛点；条件变更将生成新版本并留痕。</div>
+    </div>`;
+}
+function openClarifyModal(jobId){
+  if(!requireRole('specialist','发起澄清')) return;
+  openModal(`
+    <h3>💬 发起澄清问询</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">该岗位需求描述不清晰，请向需求提出人（陈经理）发出结构化问询，问答将自动留痕并同步给部门（PRD R6：澄清环节不可跳过）。</p>
+    <div class="field">
+      <label>澄清问题 <span class="req">*</span></label>
+      <textarea id="clarify-text" rows="4" placeholder="建议围绕：实际做什么 / 必备条件 / 加分项 / 什么经历算符合"></textarea>
+      <div class="hint">示例：「不懂数仓的候选人是否直接不考虑？请明确必备与加分的边界。」</div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitClarify('${jobId}')">发送问询并留痕</button>
+    </div>`);
+}
+function submitClarify(jobId){
+  const txt = $('#clarify-text').value.trim();
+  if(!txt){ toast('澄清问题不能为空','error'); return; }
+  const j = jobs.find(x=>x.id===jobId);
+  j.clarifyLog.push({q:txt,a:'',t:'刚刚 · 已向陈经理发起问询，等待回复',state:'pending'});
+  closeModal(); openJob(jobId);
+  toast('澄清问询已发送并留痕，待需求提出人回复');
+}
+
+/* —— 发布岗位需求（仅用人部门经理） —— */
+let jobSeq = 10;
+function openPublishJobModal(){
+  if(!requireAny(['deptmgr'],'发布岗位需求')) return;
+  openModal(`
+    <h3>＋ 发布岗位需求</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">由用人部门经理发起，需求部门自动锁定为 <b>${currentUser.dept}</b>。发布后条件即时生效，作为 AI 解析与专员筛选的唯一依据（BR-02）。</p>
+    <div class="field"><label>岗位名称 <span class="req">*</span></label><input type="text" id="pj-name" placeholder="例：高级前端工程师"></div>
+    <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div><label>招聘人数 <span class="req">*</span></label><input type="text" id="pj-hc" value="1"></div>
+      <div><label>期望到岗时间</label><input type="text" id="pj-date" placeholder="例：2026 年 12 月前"></div>
+    </div>
+    <div class="field"><label>需求描述 <span class="req">*</span></label>
+      <textarea id="pj-desc" rows="3" placeholder="这个岗位实际要做什么？解决什么问题？（避免使用「最好」「大概」等模糊表述）"></textarea>
+    </div>
+    <div class="field"><label>条件权重（合计需为 100%）</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div><input type="text" id="pj-w1" value="40" style="text-align:center;"><div class="hint" style="text-align:center;">技术栈 %</div></div>
+        <div><input type="text" id="pj-w2" value="30" style="text-align:center;"><div class="hint" style="text-align:center;">项目经验 %</div></div>
+        <div><input type="text" id="pj-w3" value="30" style="text-align:center;"><div class="hint" style="text-align:center;">软技能 %</div></div>
+      </div>
+    </div>
+    <div class="field"><label>核心条件（每行一条，将作为逐项对照依据）<span class="req">*</span></label>
+      <textarea id="pj-crit" rows="3" placeholder="例：
+5 年以上前端开发经验（硬性）
+精通 React / Vue 任一主流框架
+有大型项目从 0 到 1 主导经验"></textarea>
+    </div>
+    <div class="checkline"><input type="checkbox" id="pj-confirm"><label for="pj-confirm" style="cursor:pointer;">我已确认以上条件可作为简历筛选依据，后续变更将生成新版本并留痕</label></div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitPublishJob()">发布岗位需求</button>
+    </div>`);
+}
+function submitPublishJob(){
+  if(!requireAny(['deptmgr'],'发布岗位需求')) return;
+  const name = $('#pj-name').value.trim();
+  const hc = $('#pj-hc').value.trim();
+  const date = $('#pj-date').value.trim();
+  const desc = $('#pj-desc').value.trim();
+  const critRaw = $('#pj-crit').value.trim();
+  const w1 = parseInt($('#pj-w1').value,10)||0, w2 = parseInt($('#pj-w2').value,10)||0, w3 = parseInt($('#pj-w3').value,10)||0;
+  if(!name || !desc || !critRaw){ toast('岗位名称、需求描述、核心条件均为必填','error'); return; }
+  if(!/^\d+$/.test(hc) || parseInt(hc,10)<1){ toast('招聘人数需为大于 0 的整数','error'); return; }
+  if(w1+w2+w3 !== 100){ toast('三项权重合计需为 100%（当前 '+(w1+w2+w3)+'%）','error'); return; }
+  if(!$('#pj-confirm').checked){ toast('请先确认条件可作为筛选依据（BR-02）','error'); return; }
+  const crit = critRaw.split('\n').map(x=>x.trim()).filter(Boolean);
+  const id = 'J'+(++jobSeq);
+  jobs.unshift({
+    id, name, dept: currentUser.dept, status:'进行中',
+    headcount: parseInt(hc,10), received: 0, owner:'李婷（招聘专员）', requester: currentUser.name+'（部门经理）',
+    posted:'2026-10-24', version:'v1', clarifyNeeded:false,
+    desc: desc + (date? '（期望到岗：'+date+'）':''),
+    weights:{tech:w1,proj:w2,soft:w3},
+    interviewers: [],
+    criteria:[
+      {dim:'技术栈 '+w1+'%',tag:'blue',items: crit.slice(0, Math.ceil(crit.length/2))},
+      {dim:'项目与经验 '+w2+'%',tag:'purple',items: crit.slice(Math.ceil(crit.length/2))},
+      {dim:'软技能 '+w3+'%',tag:'green',items:['沟通协作与文档习惯（面试重点考察）']}
+    ],
+    clarifyLog:[
+      {q:'['+currentUser.name+'] 发布岗位需求并确认条件版本 v1：'+crit.join(' / '), a:'条件已作为 AI 解析与专员筛选的唯一依据，发布时即完成确认。', t:'刚刚 · 系统自动留痕', state:'done'}
+    ],
+    confirmed:'确认人：'+currentUser.name+'（'+currentUser.dept+'） · 刚刚 · 条件版本 v1 已生效，作为 AI 解析与人工推荐的唯一依据（BR-02）'
+  });
+  currentJob = id;
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'发布岗位需求',target:name+'（'+currentUser.dept+'）',extra:'招 '+hc+' 人 · 条件版本 v1',key:'dept'});
+  closeModal();
+  navTo('jobs'); openJob(id); renderJobs();
+  toast('岗位「'+name+'」已发布，条件版本 v1 生效，可通知招聘专员开始筛选');
+}
+
+/* —— 指派面试官（仅部门经理，限本部门成员） —— */
+function openAssignModal(jobId){
+  if(!requireAny(['deptmgr'],'指派面试官')) return;
+  const j = jobs.find(x=>x.id===jobId);
+  if(!currentUser || currentUser.dept!==j.dept){
+    toast('仅可指派本部门岗位的面试官（该岗位属「'+j.dept+'」）','error'); return;
+  }
+  const mates = users.filter(u=>u.dept===currentUser.dept && u.status==='启用' && u.role!=='平台管理员');
+  const assigned = j.interviewers || [];
+  if(!mates.length){ toast('本部门暂无可指派的成员','error'); return; }
+  openModal(`
+    <h3>👥 指派面试官 · ${j.name}</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">仅可指派<b>本部门（${currentUser.dept}）</b>成员；被指派人可参与面试并在候选人入职后提交用人结果反馈。</p>
+    ${mates.map(u=>`
+      <label class="iv-pick ${assigned.includes(u.name)?'checked':''}" onclick="this.classList.toggle('checked')">
+        <input type="checkbox" class="iv-check" value="${u.name}" ${assigned.includes(u.name)?'checked':''} style="width:15px;height:15px;">
+        <span class="avatar">${u.name.slice(0,1)}</span>
+        <span style="flex:1;"><b style="font-size:13px;">${u.name}</b><br><small style="color:var(--text3);font-size:11.5px;">${u.role} · ${u.account}</small></span>
+      </label>`).join('')}
+    <div class="ai-note">其他部门成员（如数据中台、商业化事业部）不会出现在此列表，跨部门指派被系统禁止。</div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitAssign('${jobId}')">保存指派</button>
+    </div>`);
+}
+function submitAssign(jobId){
+  if(!requireAny(['deptmgr'],'指派面试官')) return;
+  const j = jobs.find(x=>x.id===jobId);
+  const picked = Array.from(document.querySelectorAll('.iv-check:checked')).map(c=>c.value);
+  j.interviewers = picked;
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'指派面试官',target:j.name,extra:picked.length? '面试官：'+picked.join('、') : '已清空面试官', key:'dept'});
+  closeModal(); openJob(jobId);
+  toast(picked.length? '已指派 '+picked.length+' 位面试官（仅限本部门成员）' : '已清空该岗位的面试官');
+}
+
+/* =====================================================================
+   页面 2：简历筛选与核对
+===================================================================== */
+let currentResume = null;
+function renderResumeList(){
+  $('#resume-tbody').innerHTML = resumes.map(r=>`
+    <tr class="r-row" onclick="openResume('${r.id}')">
+      <td><b>${r.name}</b></td>
+      <td>${r.years}</td>
+      <td><span class="score-bar"><span class="grade ${r.grade}">${r.grade}</span> ${r.score} 分<span class="track"><span class="fill" style="width:${r.score}%"></span></span></span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.tags.slice(0,3).join(' / ')}</td>
+      <td>${statusTag(r.status)}</td>
+      <td style="color:var(--text3);font-size:12px">${r.log}</td>
+    </tr>`).join('');
+  $('#nav-pending').textContent = resumes.filter(r=>r.status==='待核对').length;
+  // 简历待核对角标仅招聘专员关心（其他人无处理权限）
+  $('#nav-pending').style.display = currentRole==='specialist' ? '' : 'none';
+  // 权限：上传简历仅招聘专员可用
+  $('#upload-area').innerHTML = currentRole==='specialist'
+    ? '<button class="btn btn-primary" onclick="simulateUpload()">⬆ 上传简历（PDF）并解析</button>'
+    : '<span style="font-size:12px;color:var(--text3);">'+(currentRole==='admin'
+        ? '🔒 平台管理员仅做平台治理与账号管理，不参与简历上传与核对（职责分离）'
+        : currentRole==='manager'
+          ? '🔒 招聘经理为只读监督视角，可查看看板与反馈结果，不参与简历核对'
+          : '🔒 上传/核对简历仅招聘专员可操作，用人部门仅做面试决定')+'</span>';
+}
+function simulateUpload(){
+  if(!requireRole('specialist','上传简历')) return;
+  openModal(`
+    <h3>⬆ 模拟上传简历（PDF）</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">系统将对照「已确认条件 v2」逐项解析，输出评分、能力标签、原文证据与待核实问题。上传前请确认：候选人面试意向已电话确认并留存（PRD R33）。</p>
+    <div class="checkline"><input type="checkbox" id="intent-check"><label for="intent-check" style="cursor:pointer;">我已通过电话与候选人确认面试意向（2026-10-24 · 通话记录已留存）</label></div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doUpload()">开始上传并解析</button>
+    </div>`);
+}
+function doUpload(){
+  if(!$('#intent-check').checked){ toast('必须先确认候选人面试意向才能进入录入流程（PRD R33）','error'); return; }
+  closeModal();
+  toast('正在上传简历并调用 AI 解析…','info');
+  setTimeout(()=>{
+    if(!resumes.find(r=>r.id==='R7')){
+      resumes.unshift({id:'R7',name:'黄磊',years:'7 年',score:82,grade:'A',job:'高级前端工程师',status:'待核对',submitted:'—',
+        tags:['Vue3','可视化','开源贡献'],
+        summary:'7 年经验，Vue3 + 数据可视化方向，GitHub 开源项目 1.2k star。',
+        matches:[
+          {item:'技术栈 · 主流框架',result:'✓ 符合',cls:'ok',evi:'7 年 Vue 开发经验，维护开源图表库（1.2k star）。',src:'工作经历 / 开源经历'},
+          {item:'项目经验 · 5 年以上',result:'✓ 符合',cls:'ok',evi:'7 年前端开发经验。',src:'基本信息'},
+          {item:'软技能 · 跨团队推动',result:'⚠ 信息不足',cls:'miss',evi:'简历未提及，需核实。',src:'—（简历中未提及）'}
+        ],
+        questions:[{txt:'开源项目维护投入与到岗后工作精力的平衡，需面谈了解。',done:false}],
+        draftReason:'候选人 7 年 Vue 经验，有高质量开源贡献，技术影响力突出。',
+        draftGap:'跨团队推动证据不足；开源维护的时间投入需面谈确认。',
+        log:'刚刚 · '+actorName()+' 上传并解析成功'});
+      jobs[0].received++;
+    }
+    renderResumeList(); renderJobs();
+    toast('简历「黄磊.pdf」解析完成，已生成证据链，请人工核对');
+  },1600);
+}
+function openResume(id){
+  currentResume = id;
+  const r = resumes.find(x=>x.id===id);
+  $('#resume-list-view').style.display='none';
+  $('#resume-detail-view').classList.add('show');
+  const decided = r.status==='已推荐待部门决定' || r.status==='人工不推荐';
+  $('#resume-detail-body').innerHTML = `
+    <div class="card" style="padding:14px 20px;display:flex;align-items:center;gap:12px;">
+      <b style="font-size:16px;">${r.name}</b><span class="tag gray">${r.years}</span>
+      <span>应聘：高级前端工程师</span>${statusTag(r.status)}
+      <span style="margin-left:auto;color:var(--text3);font-size:12px;">版本 v1 · 旧版本不覆盖（PRD C7）</span>
+    </div>
+    <div class="three-col">
+      <!-- 左：PDF 原文 -->
+      <div class="col-card">
+        <h4>📄 简历原件（PDF 原文）</h4>
+        <div class="pdf-box">
+          <b>${r.name}</b> · 求职意向：前端开发（高级）<br>
+          📞 138****${(Math.abs(hashCode(r.id))%9000+1000)} · ✉️ ${r.name.toLowerCase()}@mail.com
+          <div class="sec">▸ 工作经历</div>
+          <span class="hl">${r.summary}</span><br>
+          详细职责与业绩见下方各段高亮内容，本栏为 PDF 原文摘要预览。
+          <div class="sec">▸ 技能清单</div>
+          ${r.tags.join(' · ')}
+          <div class="sec">▸ 教育背景</div>
+          本科 · 计算机相关专业（示意占位）
+          <div class="sec">▸ 附件说明</div>
+          演示原型中以文字摘要代替 PDF 渲染；正式版本支持原文件预览、缩放与关键词检索。
+        </div>
+        <button class="btn btn-plain btn-sm" style="margin-top:10px;width:100%;" onclick="toast('（模拟）已在弹层中打开简历原件 PDF，可回看任何细节','info')">🔍 查看完整原件</button>
+      </div>
+      <!-- 中：AI 解析 -->
+      <div class="col-card">
+        <h4>🤖 AI 解析结果（对照条件版本 v2）</h4>
+        <div class="score-hero">
+          <div class="big">${r.score}</div>
+          <div>
+            <div style="font-weight:700;">综合评分 <span class="grade ${r.grade}" style="margin-left:6px;">${r.grade} 级</span></div>
+            <div style="font-size:12px;color:var(--text2);margin-top:3px;">仅供人工核对排序参考 · 系统不设自动淘汰线（PRD R3/C3）</div>
+          </div>
+        </div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px;">🏷️ 能力标签</div>
+        <div class="tagcloud">${r.tags.map(t=>'<span class="tag blue">'+t+'</span>').join('')}</div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px;">📋 逐项对照结论（每条结论均附原文证据，可回查 · PRD R9/R11）</div>
+        ${r.matches.map(m=>`
+          <div class="match-item ${m.cls}">
+            <div class="m-head"><span>${m.item}</span><span class="tag ${m.cls==='ok'?'green':(m.result.indexOf('✗')===0?'red':'orange')}">${m.result}</span></div>
+            <div>${m.evi.split('。')[0]}。</div>
+            <div class="evi">${m.evi}</div>
+            <div class="src">证据出处：${m.src}</div>
+          </div>`).join('')}
+        <div class="ai-note">⚠️ 简历<b>没写到</b>的内容一律标「信息不足」，不判「不具备」（PRD R10/E1）；本页任何结果都不会触发自动流转或淘汰，下一步动作由专员决定。</div>
+      </div>
+      <!-- 右：待核实问题 -->
+      <div class="col-card">
+        <h4>❓ 待核实问题（${r.questions.filter(q=>!q.done).length} 项待处理）</h4>
+        ${r.questions.length? r.questions.map((q,i)=>`
+          <div class="q-item ${q.done?'done':''}">
+            <span class="q-no">Q${i+1}.</span> ${q.txt}
+            ${!q.done?`<div style="margin-top:6px;"><button class="btn btn-plain btn-sm" onclick="markQuestion('${r.id}',${i})">✔ 标记已核实</button></div>`:''}
+          </div>`).join('') : '<div class="empty">无待核实问题</div>'}
+        <div class="ai-note">核实完成后操作将留痕（BR-12）；也可通过电话/邮件向候选人或部门补充核实。</div>
+      </div>
+    </div>
+    <!-- 底部操作区 -->
+    <div class="action-bar">
+      ${decided? `
+        <span class="tag ${r.status==='人工不推荐'?'gray':'orange'}" style="font-size:13px;padding:6px 14px;">${r.status==='人工不推荐'?'该简历已由专员人工标记「不推荐」并留痕（非 AI 淘汰）':'该简历已提交推荐，等待部门反馈'}</span>
+        <span class="note">${r.log}</span>`
+      : currentRole==='specialist'? `
+        <button class="btn btn-plain" onclick="sendBack('${r.id}')">↩ 打回重审（模拟）</button>
+        <button class="btn btn-plain" onclick="supplementInfo('${r.id}')">📝 补充信息</button>
+        <button class="btn btn-primary" onclick="openRecommendModal('${r.id}')">✔ 人工确认推荐</button>
+        <span class="note">AI 不会自动提交任何推荐（PRD R2/BR-18）· 分不高仍可人工推荐，但须说明差距（E2）</span>`
+      : `
+        <span class="tag gray" style="font-size:13px;padding:6px 14px;">${currentRole==='admin'
+          ? '🔒 权限提示：平台管理员不参与简历推荐与面试决策，请使用「平台管理」维护账号与角色'
+          : currentRole==='manager'
+            ? '🔒 权限提示：招聘经理为只读监督视角，可查看流程与反馈，不参与推荐提交'
+            : '🔒 权限提示：简历处理与推荐提交仅招聘专员可操作；您（用人部门）的决策入口在「部门反馈工作台」'}</span>
+        <span class="note">${currentRole==='admin'?'职责分离：管理员只治理平台，不介入招聘判断':currentRole==='manager'?'如需处理简历，请切换为招聘专员账号登录':'是否面试由您在部门反馈工作台决定（PRD R4）'}</span>`}
+    </div>`;
+}
+function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
+function backToResumeList(){
+  $('#resume-detail-view').classList.remove('show');
+  $('#resume-list-view').style.display='block';
+  renderResumeList();
+}
+function markQuestion(rid,i){
+  const r = resumes.find(x=>x.id===rid);
+  r.questions[i].done = true;
+  openResume(rid);
+  toast('已标记核实完成并留痕');
+}
+function sendBack(rid){
+  if(!requireRole('specialist','打回重审')) return;
+  const r = resumes.find(x=>x.id===rid);
+  r.log = '刚刚 · ' + actorName() + ' 打回重审（模拟：重新解析）';
+  toast('已打回重审，AI 将重新解析（模拟操作）','info');
+  openResume(rid);
+}
+function supplementInfo(rid){
+  if(!requireRole('specialist','补充信息')) return;
+  openModal(`
+    <h3>📝 补充核实信息</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">记录向候选人 / 部门核实的结果，操作将留痕（PRD BR-12、E1）。</p>
+    <div class="field">
+      <label>核实记录 / 补充说明 <span class="req">*</span></label>
+      <textarea id="supp-text" rows="4" placeholder="例：已电话核实空窗期为备考脱产学习，候选人同意提供证明材料。"></textarea>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doSupplementInfo('${rid}')">保存并留痕</button>
+    </div>`);
+}
+function doSupplementInfo(rid){
+  const txt = $('#supp-text').value.trim();
+  if(!txt){ toast('补充内容不能为空','error'); return; }
+  const r = resumes.find(x=>x.id===rid);
+  r.log = '刚刚 · ' + actorName() + ' 补充核实并留痕';
+  r.questions.forEach(q=>q.done=true);
+  closeModal(); openResume(rid);
+  toast('补充信息已保存并留痕');
+}
+/* —— 人工确认推荐：AI 生成草稿 → 人工修改 → 手动提交 —— */
+function openRecommendModal(rid){
+  if(!requireRole('specialist','提交推荐')) return;
+  const r = resumes.find(x=>x.id===rid);
+  openModal(`
+    <h3>✔ 人工确认推荐 · ${r.name}</h3>
+    <div class="ai-note" style="margin-bottom:14px;">🤖 下方推荐理由为 <b>AI 生成草稿</b>，请人工核对并修改后手动提交（AI 不得自动提交 · PRD R2）。推荐材料将连同简历原件一起推送至部门（R17）。</div>
+    <div class="field">
+      <label>推荐理由 <span class="req">*</span></label>
+      <textarea id="rec-reason" rows="4">${esc(r.draftReason)}</textarea>
+    </div>
+    <div class="field">
+      <label>与岗位的差距说明 <span class="req">*</span></label>
+      <textarea id="rec-gap" rows="3">${esc(r.draftGap)}</textarea>
+      <div class="hint">分不高仍可推荐，但必须说明差距，由部门决定是否面试（PRD E2）。</div>
+    </div>
+    <div class="field">
+      <label>随材料推送的待核实问题</label>
+      <div style="background:var(--gray-bg);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;">
+        ${r.questions.length? r.questions.map(q=>'· '+q.txt).join('<br>') : '（无）'}
+      </div>
+    </div>
+    <div class="checkline"><input type="checkbox" id="rec-intent"><label for="rec-intent" style="cursor:pointer;">候选人面试意向已确认并留存记录（PRD R33：未确认意向不得进入推荐流程）</label></div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitRecommend('${rid}')">提交推荐至部门</button>
+    </div>`);
+}
+function submitRecommend(rid){
+  const r = resumes.find(x=>x.id===rid);
+  const reason = $('#rec-reason').value.trim();
+  const gap = $('#rec-gap').value.trim();
+  if(!reason || !gap){ toast('推荐理由与差距说明均为必填','error'); return; }
+  if(!$('#rec-intent').checked){ toast('候选人面试意向未确认，无法提交推荐（PRD R33）','error'); return; }
+  r.status = '已推荐待部门决定';
+  r.log = '刚刚 · ' + actorName() + ' 人工提交推荐（AI 草稿已人工修改）';
+  r.draftReason = reason; r.draftGap = gap;
+  recommendations.unshift({
+    id:'REC-'+(++recSeq), cand:r.name, job:'高级前端工程师（技术部 · 前端组）', resumeId:rid,
+    submittedBy:actorName(), submittedAt:'刚刚', waitDays:0, status:'待部门决定',
+    reason, gap, pendingQ:r.questions.map(q=>q.txt), feedback:null
+  });
+  closeModal(); backToResumeList(); renderFbList();
+  toast('推荐已提交至用人部门（王总监），等待部门反馈，等待时长开始计时');
+}
+
+/* =====================================================================
+   页面 3：部门反馈工作台
+===================================================================== */
+let currentRec = 'REC-1024';
+function renderFbList(){
+  const pending = recommendations.filter(r=>r.status==='待部门决定').length;
+  $('#fb-pending-count').textContent = pending;
+  $('#kpi-waiting').textContent = pending;
+  const banner = {
+    deptmgr:'👤 当前为「'+(currentUser?currentUser.name+' · '+currentUser.role:'用人部门经理')+'」视角：可对推送简历做三选一反馈（拒绝必填原因），可发布本部门岗位、指派本部门面试官，并在候选人入职后提交用人结果反馈。',
+    interviewer:'👤 当前为「'+(currentUser?currentUser.name+' · '+currentUser.role:'用人部门面试官')+'」视角：可查看推荐材料与面试记录，并在候选人入职一段时间后提交<b>用人结果反馈</b>给推荐人；面试决定由部门经理做出。',
+    specialist:'👤 当前为「'+(currentUser?currentUser.name+' · '+currentUser.role:'招聘专员')+'」视角：可查看部门反馈结果并跟进催办，但<b>不能代替部门做面试决定</b>（PRD R4）。部门新反馈会出现在右上角铃铛。',
+    manager:'👤 当前为「'+(currentUser?currentUser.name+' · '+currentUser.role:'招聘经理')+'」视角：可查看全部反馈与流程时效、催办超时部门，但<b>不参与面试决策</b>（职责分离）。',
+    admin:'👤 当前为「'+(currentUser?currentUser.name+' · '+currentUser.role:'平台管理员')+'」视角：仅可查看流程数据用于平台治理，<b>不参与任何招聘决策</b>（职责分离原则）。'
+  };
+  if($('#fb-banner')) $('#fb-banner').innerHTML = banner[currentRole];
+  $('#fb-list').innerHTML = recommendations.map(r=>`
+    <div class="fb-item ${r.id===currentRec?'active':''}" onclick="openRec('${r.id}')">
+      <div class="f-top"><b>${r.cand}</b>${statusTag(r.status)}</div>
+      <div class="f-meta">${r.job}</div>
+      <div class="f-meta" style="margin-top:4px;">专员：${r.submittedBy} · 提交于 ${r.submittedAt}
+        ${r.status==='待部门决定'?` · <span class="wait">已等待 ${r.waitDays} 个工作日</span>`:''}
+      </div>
+    </div>`).join('');
+  renderAlerts();
+  updateTabNums();
+}
+function openRec(id){
+  currentRec = id; renderFbList();
+  const r = recommendations.find(x=>x.id===id);
+  const fb = r.feedback;
+  $('#fb-detail').innerHTML = `
+    <div class="card fb-detail">
+      <h3>推荐材料 · ${r.cand} <span class="tag gray">${r.id}</span> ${statusTag(r.status)}</h3>
+      <div class="mat-block"><b class="lbl">👤 候选人概况</b>${r.cand} · 应聘 ${r.job} · 推荐专员：${r.submittedBy}（提交于 ${r.submittedAt}，附简历原件）</div>
+      <div class="mat-block"><b class="lbl">💡 专员提交的推荐理由</b>${r.reason}</div>
+      <div class="mat-block"><b class="lbl">⚖️ 与岗位的差距说明</b>${r.gap}</div>
+      <div class="mat-block"><b class="lbl">❓ 随材料推送的待核实问题</b>${r.pendingQ.length? r.pendingQ.map(q=>'· '+q).join('<br>') : '（无）'}</div>
+      <button class="btn btn-plain btn-sm" onclick="toast('（模拟）已打开简历原件 PDF，请结合原件与证据链判断，勿仅凭系统评分下结论（PRD R5 风险提示）','info')">📄 查看简历原件</button>
+      <div class="ai-note">是否进入面试由用人部门提交需求的人决定（PRD R4）。AI 与系统不参与本决策。</div>
+
+      ${r.status==='待部门决定'? (canDecide()? `
+        <div class="btn-row3">
+          <button class="btn btn-primary" onclick="openAgreeModal('${r.id}')">✓ 同意面试</button>
+          <button class="btn btn-danger" onclick="openRejectModal('${r.id}')">✕ 拒绝面试</button>
+          <button class="btn btn-warn" onclick="openSupplementModal('${r.id}')">✎ 需要补充信息</button>
+        </div>` : `
+        <div class="decided-strip sup" style="margin-top:16px;">
+          🔒 权限提示：面试决定（同意 / 拒绝 / 需补充信息）仅<b>用人部门经理</b>可操作（PRD R4）。
+          <br><span style="font-size:12px;opacity:.8;">${isInterviewer()
+            ? '您是本部门面试官：可查看材料、参与面试，并在候选人入职一段时间后提交「用人结果反馈」。'
+            : '请通过右上角账号下拉切换为用人部门经理账号后操作。'}</span>
+        </div>`)
+      : fb? `
+        <div class="decided-strip ${fb.type==='已同意面试'?'ok':fb.type==='已拒绝'?'no':'sup'}">
+          <b>部门反馈结果：${fb.type}</b><br>${fb.detail}<br>
+          <span style="font-size:12px;opacity:.8;">反馈人：${fb.by} · ${fb.at}（反馈留痕，不静默覆盖）</span>
+        </div>`:''}
+    </div>`;
+}
+/* —— 权限守卫：敏感操作在函数内二次校验（模拟后端鉴权）—— */
+function requireRole(role, actionName){
+  if(currentRole!==role){
+    const label = {specialist:'招聘专员', dept:'用人部门', admin:'平台管理员', manager:'招聘经理'}[role] || role;
+    toast('权限不足：「'+actionName+'」仅'+label+'可操作，请先切换右上角登录账号','error');
+    return false;
+  }
+  return true;
+}
+function requireAny(roles, actionName){
+  if(!roles.includes(currentRole)){
+    const labels = {specialist:'招聘专员', admin:'平台管理员', manager:'招聘经理', deptmgr:'用人部门经理', interviewer:'用人部门面试官'};
+    toast('权限不足：「'+actionName+'」仅'+roles.map(r=>labels[r]||r).join(' / ')+'可操作','error');
+    return false;
+  }
+  return true;
+}
+const deptShort = () => currentUser ? currentUser.dept.split(' · ')[0] : '技术部';
+const byLine = () => actorName() + '（' + deptShort() + '）';
+
+function openAgreeModal(id){
+  if(!requireAny(['deptmgr'],'面试决定')) return;
+  const r = recommendations.find(x=>x.id===id);
+  openModal(`
+    <h3 style="color:var(--green);">✓ 同意面试 · ${r.cand}</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">同意后系统会把您的反馈推送给招聘专员（李婷）跟进排期；请填写面试安排或补充要求，反馈将留痕并同步至候选人推进记录。</p>
+    <div class="field">
+      <label>面试反馈 / 安排说明 <span class="req">*</span></label>
+      <textarea id="agree-detail" rows="4">建议先进行一轮技术面（60 分钟），时间可约下周三下午；重点考察跨团队推动与工程化落地经验。</textarea>
+      <div class="hint">可写明面试轮次、考察重点、期望时间等，专员将据此排期</div>
+    </div>
+    <div class="field">
+      <label>期望面试时间（可选）</label>
+      <input type="text" id="agree-time" placeholder="例：10 月 28 日（周三）14:00–15:00">
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitAgree('${id}')">提交反馈并通知专员</button>
+    </div>`);
+}
+function submitAgree(id){
+  if(!requireAny(['deptmgr'],'面试决定')) return;
+  const detail = $('#agree-detail').value.trim();
+  const expect = $('#agree-time').value.trim();
+  if(!detail){ toast('请填写面试反馈或安排说明（反馈将同步给专员）','error'); return; }
+  const r = recommendations.find(x=>x.id===id);
+  r.status='已同意面试';
+  r.feedback={
+    type:'已同意面试',
+    detail: detail + (expect? ' 期望时间：'+expect : ''),
+    by: byLine(), at:'刚刚'
+  };
+  pushFeedbackNotif(r, '已同意面试', detail + (expect? '（期望时间：'+expect+'）':''));
+  closeModal(); renderFbList(); openRec(id);
+  toast('已同意面试，反馈已推送给招聘专员「李婷」，可在其通知铃铛中查看');
+}
+function openRejectModal(id){
+  if(!requireAny(['deptmgr'],'面试决定')) return;
+  const r = recommendations.find(x=>x.id===id);
+  openModal(`
+    <h3 style="color:var(--red);">✕ 拒绝面试 · ${r.cand}</h3>
+    <div class="checkline" style="background:var(--red-bg);color:var(--red);">
+      ⚠️ 按平台规则（PRD R18），<b>拒绝原因必填</b>。拒绝原因将沉淀为数据，用于后续双轨验证与标准校准。
+    </div>
+    <div class="field">
+      <label>拒绝原因 <span class="req">*</span></label>
+      <textarea id="reject-reason" rows="4" placeholder="请说明不面试的具体原因，例：项目经验与岗位方向不符 / 技术栈不匹配 / 已有更合适人选…"></textarea>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" onclick="submitReject('${id}')">提交拒绝反馈</button>
+    </div>`);
+}
+function submitReject(id){
+  const reason = $('#reject-reason').value.trim();
+  if(!reason){ toast('拒绝原因必填，无法提交（PRD R18）','error'); return; }
+  const r = recommendations.find(x=>x.id===id);
+  r.status='已拒绝';
+  r.feedback={type:'已拒绝',detail:reason,by:byLine(),at:'刚刚'};
+  pushFeedbackNotif(r,'已拒绝',reason);
+  closeModal(); renderFbList(); openRec(id);
+  toast('已拒绝并记录原因，反馈已推送给招聘专员「李婷」');
+}
+function openSupplementModal(id){
+  if(!requireAny(['deptmgr'],'面试决定')) return;
+  const r = recommendations.find(x=>x.id===id);
+  openModal(`
+    <h3 style="color:var(--orange);">✎ 要求补充信息 · ${r.cand}</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">请填写需要专员补充的材料或说明，提交后状态变为「待补充」，专员补充后将重新核对。</p>
+    <div class="field">
+      <label>补充要求 <span class="req">*</span></label>
+      <textarea id="sup-req" rows="4" placeholder="例：请补充一份数据建模相关项目说明材料"></textarea>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-warn" onclick="submitSupplement('${id}')">提交补充要求</button>
+    </div>`);
+}
+function submitSupplement(id){
+  const txt = $('#sup-req').value.trim();
+  if(!txt){ toast('补充要求不能为空','error'); return; }
+  const r = recommendations.find(x=>x.id===id);
+  r.status='待补充';
+  r.feedback={type:'待补充',detail:txt,by:byLine(),at:'刚刚'};
+  pushFeedbackNotif(r,'待补充',txt);
+  closeModal(); renderFbList(); openRec(id);
+  toast('补充要求已发送给招聘专员「李婷」，状态更新为「待补充」');
+}
+
+/* =====================================================================
+   页面 4：看板 · 卡点预警
+===================================================================== */
+function renderAlerts(){
+  const alerts = recommendations.filter(r=>r.status==='待部门决定' && r.waitDays>3);
+  $('#alert-list').innerHTML = alerts.length? alerts.map(a=>`
+    <div class="alert-item">
+      <div class="a-txt"><b>${a.cand}</b>（${a.job.split('（')[0]}）等待部门反馈已 <b>${a.waitDays} 个工作日</b><br>
+      <span style="color:var(--text3);font-size:12px;">提交于 ${a.submittedAt} · 超过 3 个工作日阈值</span></div>
+      ${(currentRole==='specialist'||currentRole==='manager')
+        ? '<button class="btn btn-danger btn-sm" onclick="urge(\''+a.id+'\')">🔔 一键催办</button>'
+        : '<span class="tag gray" style="font-size:12px;">催办由招聘专员 / 招聘经理操作</span>'}
+    </div>`).join('') : '<div class="empty">暂无卡点预警，各部门反馈均在 3 个工作日内 👍</div>';
+}
+function urge(id){
+  if(!requireAny(['specialist','manager'],'催办')) return;
+  const r = recommendations.find(x=>x.id===id);
+  toast('（模拟）已向需求提出人发送催办提醒：请尽快反馈「'+r.cand+'」的面试决定','info');
+}
+
+/* —— 看板：用人结果回评统计（双轨验证） —— */
+function renderDashboardHire(){
+  const el = $('#hire-stats'); if(!el) return;
+  const done = onboarded.filter(o=>o.status==='已反馈');
+  const align = done.filter(o=>o.feedback && o.feedback.align==='与面试判断一致').length;
+  const rate = done.length ? Math.round(align/done.length*100) : 0;
+  el.innerHTML = `
+    <div class="kpi-mini-row">
+      <div class="kpi-mini"><b style="color:var(--primary)">${done.length}</b><span>已回评人数</span></div>
+      <div class="kpi-mini"><b style="color:var(--green)">${rate}%</b><span>面试判断一致率（校准参考）</span></div>
+      <div class="kpi-mini"><b style="color:var(--orange)">${onboarded.filter(o=>o.status==='待反馈').length}</b><span>待回评（入职满 ${HIRE_MIN_DAYS} 天）</span></div>
+    </div>
+    ${done.map(o=>`
+      <div class="log-item">
+        <span class="l-time">${o.feedback.at.split(' ')[0]}</span>
+        <span class="l-who">${o.cand}</span>
+        <span class="l-what">用人结果 <b>${o.feedback.rating}</b> · ${o.feedback.align}
+          <span class="l-extra">推荐人：${o.referrer} · ${o.feedback.by}</span></span>
+      </div>`).join('')}
+    <div class="ai-note">用人结果由用人部门（经理 / 面试官）在候选人入职一段时间后主动回评，用于反推筛选标准是否准确；系统不做任何自动评价，也不据此自动调整评分。</div>`;
+}
+
+/* =====================================================================
+   页面 5：平台管理（用户 / 角色 / 权限 / 配置 / 审计）
+===================================================================== */
+const ROLE_OPTIONS = ['平台管理员','招聘经理','招聘专员','用人部门经理','用人部门面试官'];
+const DEPT_OPTIONS = ['人力资源部 · 招聘组','人力资源部','技术部 · 前端组','数据中台','商业化事业部','信息技术部'];
+const roleTagCls = r => ({'平台管理员':'purple','招聘经理':'blue','招聘专员':'blue','用人部门经理':'green','用人部门面试官':'gray'}[r]||'gray');
+
+let users = [
+  {id:'U1',name:'张工',account:'zhanggong@xinghe.com',role:'平台管理员',dept:'信息技术部',status:'启用',last:'2026-10-24 09:12',self:true},
+  {id:'U2',name:'李婷',account:'liting@xinghe.com',role:'招聘专员',dept:'人力资源部 · 招聘组',status:'启用',last:'2026-10-24 08:40'},
+  {id:'U3',name:'张晓',account:'xiaozhang@xinghe.com',role:'招聘专员',dept:'人力资源部 · 招聘组',status:'启用',last:'2026-10-23 18:20'},
+  {id:'U4',name:'周姐',account:'zhoujie@xinghe.com',role:'招聘经理',dept:'人力资源部',status:'启用',last:'2026-10-23 17:05'},
+  {id:'U5',name:'王总监',account:'wangzj@xinghe.com',role:'用人部门经理',dept:'技术部 · 前端组',status:'启用',last:'2026-10-24 07:50'},
+  {id:'U6',name:'陈经理',account:'chenjl@xinghe.com',role:'用人部门经理',dept:'数据中台',status:'启用',last:'2026-10-22 16:30'},
+  {id:'U7',name:'刘总监',account:'liuzj@xinghe.com',role:'用人部门经理',dept:'商业化事业部',status:'停用',last:'2026-09-28 11:00'},
+  {id:'U8',name:'赵敏',account:'zhaomin@xinghe.com',role:'招聘专员',dept:'人力资源部 · 招聘组',status:'待激活',last:'—'},
+  {id:'U9',name:'孙磊',account:'sunlei@xinghe.com',role:'用人部门面试官',dept:'技术部 · 前端组',status:'启用',last:'2026-10-24 09:05'},
+  {id:'U10',name:'李娜',account:'lina@xinghe.com',role:'用人部门面试官',dept:'技术部 · 前端组',status:'启用',last:'2026-10-23 20:10'}
+];
+// 角色 → 权限身份（决定可见菜单与可执行操作）
+users.forEach(u=>{ u.perm = ROLE_PERM[u.role] || 'specialist'; });
+
+let auditLogs = [
+  {t:'16:02',who:'王总监',what:'拒绝面试',target:'刘洋（高级前端工程师）',extra:'原因已记录并留痕',key:'dept'},
+  {t:'15:58',who:'李婷',what:'人工提交推荐',target:'张伟（高级前端工程师）',extra:'AI 草稿经人工修改后提交',key:'specialist'},
+  {t:'15:40',who:'李婷',what:'上传并解析简历',target:'黄磊.pdf',extra:'评分 82 / A 级',key:'specialist'},
+  {t:'14:31',who:'张工',what:'创建平台用户',target:'陈经理（用人部门经理）',extra:'已发送激活短信',key:'admin'},
+  {t:'09:12',who:'张工',what:'查看平台配置',target:'合规红线：自动淘汰能力',extra:'该能力已按 R1 强制关闭',key:'admin'},
+  {t:'昨天 18:20',who:'张工',what:'停用账号',target:'liuzj@xinghe.com',extra:'原因：岗位挂起，账号暂停使用',key:'admin'}
+];
+
+const PERM_MATRIX = [
+  {cap:'岗位需求查看',roles:['✓','✓','✓','✓']},
+  {cap:'发起需求澄清',roles:['—','—','✓','—']},
+  {cap:'上传 / 解析 / 核对简历',roles:['—','—','✓','—']},
+  {cap:'人工确认并提交推荐',roles:['—','—','✓','—']},
+  {cap:'面试决定（同意/拒绝/需补充）',roles:['—','—','—','✓']},
+  {cap:'查看数据看板与卡点',roles:['✓','✓','✓','✓']},
+  {cap:'管理平台用户与角色',roles:['✓','—','—','—']},
+  {cap:'修改平台配置',roles:['✓','—','—','—']}
+];
+
+function renderPlatform(){
+  if(!requireRole('admin','访问平台管理')) return;
+  const active = users.filter(u=>u.status==='启用').length;
+  const waitActivate = users.filter(u=>u.status==='待激活').length;
+  $('#platform-body').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="k-label">平台用户总数</div><div class="k-val" style="color:var(--primary)">${users.length}</div><div class="k-sub">启用 ${active} 个 · 待激活 ${waitActivate} 个</div></div>
+      <div class="kpi"><div class="k-label">平台角色</div><div class="k-val">5 类</div><div class="k-sub">管理员 / 招聘经理 / 招聘专员 / 部门经理 / 面试官</div></div>
+      <div class="kpi"><div class="k-label">在招岗位</div><div class="k-val">3</div><div class="k-sub">1 个挂起、1 个需求待澄清</div></div>
+      <div class="kpi"><div class="k-label">系统状态</div><div class="k-val" style="color:var(--green);font-size:20px;">● 运行正常</div><div class="k-sub">AI 解析服务可用 · 最近一次同步 09:00</div></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="margin:0;">👥 平台用户管理</h3>
+        <button class="btn btn-primary" onclick="openCreateUserModal()">＋ 新建用户</button>
+      </div>
+      <table class="user-table">
+        <thead><tr><th>用户</th><th>登录账号</th><th>平台角色</th><th>所属部门</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead>
+        <tbody>
+          ${users.map(u=>`
+            <tr>
+              <td><span class="avatar">${u.name.slice(0,1)}</span><b>${u.name}</b>${u.self?' <span class="tag blue" style="font-size:11px;">当前登录</span>':''}</td>
+              <td style="color:var(--text2);font-size:12.5px;">${u.account}</td>
+              <td><span class="tag ${roleTagCls(u.role)}">${u.role}</span></td>
+              <td style="color:var(--text2);font-size:12.5px;">${u.dept}</td>
+              <td>${u.status==='启用'?'<span class="tag green">启用</span>':u.status==='停用'?'<span class="tag gray">停用</span>':'<span class="tag orange">待激活</span>'}</td>
+              <td style="color:var(--text3);font-size:12px;">${u.last}</td>
+              <td>
+                <div class="ops">
+                  ${u.self
+                    ? '<span class="link-btn dis">编辑角色（自身账号）</span>'
+                    : `<a class="link-btn" onclick="openEditRoleModal('${u.id}')">编辑角色</a>
+                       ${u.status==='停用'
+                          ? `<a class="link-btn" onclick="enableUser('${u.id}')">启用</a>`
+                          : `<a class="link-btn" style="color:var(--red)" onclick="openDisableModal('${u.id}')">停用</a>`}
+                       <a class="link-btn" onclick="resetPwd('${u.id}')">重置密码</a>`}
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="ai-note">新建用户创建后<b>即时启用并可登录</b>（右上角账号下拉中直接切换）；账号一旦「停用」即无法登录，需管理员重新启用；所有账号操作（创建、改角色、停用、重置密码）均写入审计日志，不可删除（BR-12）。</div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <h3>🔑 角色权限矩阵</h3>
+        <table class="matrix">
+          <thead><tr><th>能力 / 角色</th><th>平台管理员</th><th>招聘专员</th><th>招聘经理</th><th>用人部门</th></tr></thead>
+          <tbody>
+            ${PERM_MATRIX.map(p=>`<tr>
+              <td>${p.cap}</td>
+              ${p.roles.map(v=>`<td class="${v==='✓'?'yes':v==='查看'?'view':'no'}">${v}</td>`).join('')}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        <div class="ai-note">职责分离：<b>管理员能配平台但不能做招聘决策</b>；招聘专员可推荐但不能决定是否面试（R4）；面试决定权只在用人部门。</div>
+      </div>
+      <div class="card">
+        <h3>⚙️ 平台配置</h3>
+        <div class="cfg-row"><span class="c-name">AI 解析服务</span><span class="c-val">通用大模型 v2 · 解析成功率 100%（近 30 天 42/42）</span><span class="tag green">正常</span></div>
+        <div class="cfg-row"><span class="c-name">评分与权重</span><span class="c-val">建议权重 技术栈 40% / 项目 30% / 软技能 30%，口径待业务确认（PRD C2/C3）</span><button class="btn btn-plain btn-sm" onclick="toast('（模拟）已提交权重口径确认申请给招聘经理与用人部门','info')">申请确认</button></div>
+        <div class="cfg-row"><span class="c-name">自动淘汰能力</span><span class="c-val">🚫 <b>已按合规红线永久关闭</b>：产品层面不提供开启入口（BRD R1 / PRD R3）</span><span class="switch locked" title="不可开启"></span></div>
+        <div class="cfg-row"><span class="c-name">数据保留期</span><span class="c-val">简历与操作留痕保留 24 个月（待法务确认 PRD C15）</span><span class="tag gray">待确认</span></div>
+        <div class="cfg-row"><span class="c-name">第三方服务</span><span class="c-val">飞书（审批 / 日历）· 短信网关 · 已授权 3 项</span><span class="tag blue">已连接</span></div>
+        <div class="cfg-row"><span class="c-name">账号安全</span><span class="c-val">强制短信二次验证 · 敏感操作留痕 · 离职账号 24h 内停用</span><span class="tag green">已启用</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📜 审计日志（全平台操作留痕 · 只读）</h3>
+      ${auditLogs.map(l=>`
+        <div class="log-item">
+          <span class="l-time">${l.t}</span>
+          <span class="l-who">${l.who}</span>
+          <span class="l-what">${l.what} <b>${l.target}</b> <span class="l-extra">${l.extra}</span></span>
+          <span class="tag ${l.key==='admin'?'purple':l.key==='dept'?'green':'blue'}" style="font-size:11px;">${l.key==='admin'?'管理员':l.key==='dept'?'用人部门':'招聘专员'}</span>
+        </div>`).join('')}
+      <div class="ai-note">审计日志用于回答「谁在什么时候改了什么」，任何角色（含管理员）均无删除权限。</div>
+    </div>`;
+}
+
+function openCreateUserModal(){
+  if(!requireRole('admin','新建用户')) return;
+  openModal(`
+    <h3>＋ 新建平台用户</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">创建后账号即时生效，可直接在右上角账号下拉中登录切换；系统同时发送初始密码通知。角色决定其可见菜单与可执行操作。</p>
+    <div class="field"><label>姓名 <span class="req">*</span></label><input type="text" id="nu-name" placeholder="例：赵敏"></div>
+    <div class="field"><label>手机号 / 邮箱 <span class="req">*</span></label><input type="text" id="nu-account" placeholder="例：zhaomin@xinghe.com 或 13800001111"><div class="hint">作为登录账号，不可与已有账号重复</div></div>
+    <div class="field"><label>平台角色 <span class="req">*</span></label>
+      <select id="nu-role">${ROLE_OPTIONS.map(r=>`<option value="${r}">${r}</option>`).join('')}</select>
+      <div class="hint">招聘专员可上传/核对简历与提交推荐；用人部门经理仅可做面试决定；招聘经理可看全平台数据；平台管理员可管理用户与配置。</div>
+    </div>
+    <div class="field"><label>所属部门 <span class="req">*</span></label>
+      <select id="nu-dept">${DEPT_OPTIONS.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
+    </div>
+    <div class="checkline"><input type="checkbox" id="nu-notify" checked><label for="nu-notify" style="cursor:pointer;">创建后立即发送激活通知（短信 + 邮件）</label></div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitCreateUser()">创建用户</button>
+    </div>`);
+}
+function submitCreateUser(){
+  if(!requireRole('admin','新建用户')) return;
+  const name = $('#nu-name').value.trim();
+  const account = $('#nu-account').value.trim();
+  const role = $('#nu-role').value;
+  const dept = $('#nu-dept').value;
+  if(!name || !account){ toast('姓名与登录账号均为必填','error'); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(account) && !/^1\d{10}$/.test(account)){
+    toast('账号格式有误：请填写有效邮箱或 11 位手机号','error'); return;
+  }
+  if(users.some(u=>u.account.toLowerCase()===account.toLowerCase())){
+    toast('该账号已存在，请更换邮箱或手机号','error'); return;
+  }
+  users.push({id:'U'+(users.length+1),name,account,role,dept,status:'启用',last:'—',perm:ROLE_PERM[role]||'specialist'});
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'创建平台用户',target:name+'（'+role+'）',extra:'账号已启用，可立即登录'+(($('#nu-notify')&&$('#nu-notify').checked)?'，已发送初始密码通知':'') ,key:'admin'});
+  closeModal(); renderPlatform(); updateAccountUI();
+  toast('用户「'+name+'」创建成功（'+role+'），已可在右上角账号列表登录');
+}
+
+function openEditRoleModal(uid){
+  if(!requireRole('admin','编辑角色')) return;
+  const u = users.find(x=>x.id===uid);
+  openModal(`
+    <h3>编辑角色 · ${u.name}</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">角色变更<b>立即生效</b>并写入审计日志；已提交的历史操作留痕不受影响。</p>
+    <div class="field"><label>当前角色</label><input type="text" value="${u.role}" disabled style="background:var(--gray-bg);color:var(--text2)"></div>
+    <div class="field"><label>变更为 <span class="req">*</span></label>
+      <select id="edit-role">${ROLE_OPTIONS.map(r=>`<option value="${r}" ${r===u.role?'selected':''}>${r}</option>`).join('')}</select>
+    </div>
+    <div class="field"><label>变更原因（将记录审计日志）</label><input type="text" id="edit-reason" placeholder="例：岗位调整，由专员转为招聘经理"></div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitEditRole('${uid}')">保存变更</button>
+    </div>`);
+}
+function submitEditRole(uid){
+  if(!requireRole('admin','编辑角色')) return;
+  const u = users.find(x=>x.id===uid);
+  const nr = $('#edit-role').value;
+  const reason = $('#edit-reason').value.trim() || '未填写原因';
+  if(nr===u.role){ toast('角色未发生变化','info'); return; }
+  const old = u.role;
+  u.role = nr;
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'变更用户角色（'+old+' → '+nr+'）',target:u.name,extra:'原因：'+reason,key:'admin'});
+  closeModal(); renderPlatform();
+  toast('已将「'+u.name+'」的角色调整为「'+nr+'」，即时生效');
+}
+
+function openDisableModal(uid){
+  if(!requireRole('admin','停用账号')) return;
+  const u = users.find(x=>x.id===uid);
+  openModal(`
+    <h3 style="color:var(--red);">停用账号 · ${u.name}</h3>
+    <div class="checkline" style="background:var(--red-bg);color:var(--red);">⚠️ 停用后该用户立即无法登录，其名下「待部门决定」的推荐将转为专员跟进；历史留痕全部保留（不可删除）。</div>
+    <div class="field"><label>停用原因 <span class="req">*</span></label>
+      <textarea id="disable-reason" rows="3" placeholder="例：离职 / 岗位调整 / 长期不使用"></textarea>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" onclick="submitDisable('${uid}')">确认停用</button>
+    </div>`);
+}
+function submitDisable(uid){
+  if(!requireRole('admin','停用账号')) return;
+  const reason = $('#disable-reason').value.trim();
+  if(!reason){ toast('停用原因必填（用于审计追溯）','error'); return; }
+  const u = users.find(x=>x.id===uid);
+  u.status='停用';
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'停用账号',target:u.account,extra:'原因：'+reason,key:'admin'});
+  closeModal(); renderPlatform();
+  toast('账号「'+u.name+'」已停用，操作已留痕');
+}
+function enableUser(uid){
+  if(!requireRole('admin','启用账号')) return;
+  const u = users.find(x=>x.id===uid);
+  u.status='启用';
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'启用账号',target:u.account,extra:'恢复登录权限',key:'admin'});
+  renderPlatform();
+  toast('账号「'+u.name+'」已启用');
+}
+function resetPwd(uid){
+  if(!requireRole('admin','重置密码')) return;
+  const u = users.find(x=>x.id===uid);
+  openModal(`
+    <h3>重置密码 · ${u.name}</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">系统将生成一次性重置链接发送至 <b>${u.account}</b>，链接 24 小时内有效；管理员不可见用户密码。</p>
+    <div class="m-foot">
+      <button class="btn btn-plain" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doResetPwd('${uid}')">发送重置链接</button>
+    </div>`);
+}
+function doResetPwd(uid){
+  const u = users.find(x=>x.id===uid);
+  auditLogs.unshift({t:'刚刚',who:actorName(),what:'重置密码',target:u.name,extra:'已发送一次性重置链接',key:'admin'});
+  closeModal(); renderPlatform();
+  toast('重置链接已发送至 '+u.account+'（模拟）');
+}
+
+/* =====================================================================
+   初始化
+===================================================================== */
+currentUser = users.find(u=>u.name==='李婷') || users[0];
+currentRole = currentUser.perm || 'specialist';
+$('#nav-platform').style.display = currentRole==='admin' ? '' : 'none';
+renderJobs(); openJob('J1');
+renderResumeList(); renderFbList(); renderAlerts(); renderHireList(); renderDashboardHire(); switchFbTab('rec');
+updateAccountUI(); renderBell();
+</script>
+</body>
+</html>

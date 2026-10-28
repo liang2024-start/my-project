@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="docx-page-size" content="A4">
+<title>海鲜自助餐厅系统操作手册</title>
+<style>
+  :root {
+    --color-primary: #0d47a1;
+    --color-text: #000000;
+    --color-muted: #666666;
+    --color-border: #cccccc;
+    --color-bg: #ffffff;
+    --color-highlight: #f5f7fa;
+    --fs-h1: 22pt;
+    --fs-h2: 16pt;
+    --fs-h3: 13pt;
+    --fs-body: 12pt;
+    --fs-small: 10pt;
+    --ff-heading: "黑体", SimHei, sans-serif;
+    --ff-body: "宋体", SimSun, serif;
+    --lh-body: 1.5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "宋体", SimSun, serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: var(--color-text);
+    background: var(--color-bg);
+  }
+  p { margin-bottom: 0.8em; text-indent: 2em; }
+  p.no-indent, li p { text-indent: 0; }
+  ul, ol { padding-left: 2em; margin-bottom: 0.8em; }
+  li { margin-bottom: 0.3em; text-indent: 0; }
+  h1, h2, h3 {
+    font-family: "黑体", SimHei, sans-serif;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-top: 1.6em;
+    margin-bottom: 0.8em;
+    text-indent: 0;
+  }
+  h1 { font-size: 22pt; color: #0d47a1; }
+  h2 { font-size: 16pt; color: #1565c0; }
+  h3 { font-size: 13pt; color: #333333; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0 1.2em 0; font-size: 10.5pt; }
+  th, td { padding: 0.45em 0.7em; border: 1px solid #cccccc; text-align: left; vertical-align: top; }
+  th { font-weight: bold; background: #e8eef7; font-family: "黑体", SimHei, sans-serif; }
+  img { max-width: 100%; }
+  figure { margin: 1em 0; text-align: center; text-indent: 0; }
+  figcaption { font-size: 10pt; color: #666666; margin-top: 0.4em; text-align: center; text-indent: 0; }
+  code { font-family: Consolas, monospace; font-size: 10.5pt; background: #f5f5f5; padding: 0 3px; }
+  pre {
+    font-family: Consolas, monospace; font-size: 10.5pt; background: #f5f7fa;
+    border: 1px solid #d8dee6; padding: 0.8em; margin: 0.8em 0; white-space: pre-wrap; text-indent: 0;
+  }
+  pre code { background: none; padding: 0; }
+  .src-note { font-size: 10pt; color: #666666; background: #f5f7fa; padding: 0.6em 1em; text-indent: 0; }
+  /* 页面规则（页眉页脚模型） */
+  @page { @bottom-center { content: "第 " counter(page) " 页"; } }
+  @page coverpage { @bottom-center { content: none; } }
+  section[role="cover"] { page: coverpage; }
+  .toc-list, .toc-list ol, .toc-list ul { list-style: none; list-style-type: none; padding-left: 1.5em; }
+  .toc-list li { margin-bottom: 0.3em; text-indent: 0; }
+  .toc-list a { color: #0d47a1; text-decoration: none; }
+  .toc-title { font-family: "黑体", SimHei, sans-serif; font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 1em; text-indent: 0; }
+</style>
+</head>
+<body>
+
+<section role="cover">
+  <p class="no-indent" style="text-align:center; margin-top:180pt; font-family:'黑体', SimHei, sans-serif; font-size:32pt; font-weight:bold; color:#0d47a1;">海鲜自助餐厅系统</p>
+  <p class="no-indent" style="text-align:center; margin-top:24pt; font-family:'黑体', SimHei, sans-serif; font-size:22pt; font-weight:bold; color:#333333;">操 作 手 册</p>
+  <p class="no-indent" style="text-align:center; margin-top:48pt; font-size:12pt; color:#666666;">适用系统：zizhuchanting 海鲜自助餐厅系统（v1.0）</p>
+  <p class="no-indent" style="text-align:center; font-size:12pt; color:#666666;">读者对象：系统管理员、餐厅服务人员、普通顾客</p>
+  <p class="no-indent" style="text-align:center; font-size:12pt; color:#666666;">2026 年 10 月</p>
+</section>
+
+<section role="cover">
+  <nav class="doc-toc" aria-label="文档目录">
+    <p class="toc-title">目 录</p>
+    <ol class="toc-list">
+      <li><a href="#section-1">1. 系统简介</a></li>
+      <li><a href="#section-2">2. 系统启动与停止</a>
+        <ol>
+          <li><a href="#section-2-1">2.1 前提条件</a></li>
+          <li><a href="#section-2-2">2.2 启动步骤</a></li>
+          <li><a href="#section-2-3">2.3 停止步骤</a></li>
+          <li><a href="#section-2-4">2.4 重新打包部署（改了代码时）</a></li>
+        </ol>
+      </li>
+      <li><a href="#section-3">3. 登录与账号</a></li>
+      <li><a href="#section-4">4. 管理员操作指南</a></li>
+      <li><a href="#section-5">5. 顾客（用户）操作指南</a></li>
+      <li><a href="#section-6">6. 常见问题（FAQ）</a></li>
+      <li><a href="#section-7">7. 故障排查速查</a></li>
+      <li><a href="#section-8">8. 附：默认数据一览</a></li>
+    </ol>
+  </nav>
+</section>
+
+<section data-page-restart="1">
+  <h1 id="section-1">1. 系统简介</h1>
+  <p>本系统用于海鲜自助餐厅的日常经营，包含两类使用者：</p>
+  <ul>
+    <li><b>管理员</b>：维护顾客账号、食物库存、海鲜菜品、餐桌和订单流水；</li>
+    <li><b>顾客（用户）</b>：注册登录后预订餐桌、点餐下单、查看并支付订单。</li>
+  </ul>
+  <p>系统访问地址：<b>http://localhost:8080/zizhuchanting/admin/dist/</b></p>
+  <p>登录页效果：页面标题为"海鲜自助餐厅系统登录"，含管理员/用户角色单选与登录、注册按钮（截图文件见项目 docs/images/login.png）。</p>
+
+  <h1 id="section-2">2. 系统启动与停止</h1>
+  <h2 id="section-2-1">2.1 前提条件</h2>
+  <table>
+    <tr><th>依赖</th><th>本机位置</th><th>状态要求</th></tr>
+    <tr><td>MySQL 8.0（已导入 D:\db.sql）</td><td>C:\Program Files\MySQL\MySQL Server 8.0</td><td>服务运行中（端口 3306）</td></tr>
+    <tr><td>JDK 1.8</td><td>C:\Jemeter\JDK1.8</td><td>已安装</td></tr>
+    <tr><td>Tomcat 9.0.29</td><td>D:\apache-tomcat-9.0.29</td><td>已部署 zizhuchanting.war</td></tr>
+  </table>
+
+  <h2 id="section-2-2">2.2 启动步骤</h2>
+  <ol>
+    <li>启动 MySQL 服务（Windows 服务名一般为 MySQL80，或通过 MySQL Workbench 确认能连上）；</li>
+    <li>启动 Tomcat：
+      <ul>
+        <li><b>方式一（推荐）</b>：双击 D:\apache-tomcat-9.0.29\bin\startup.bat（若报错找不到 JDK，先设置环境变量 JAVA_HOME=C:\Jemeter\JDK1.8）；</li>
+        <li><b>方式二（看日志排查问题时）</b>：在命令行执行 catalina.bat run，日志直接打印在窗口；</li>
+      </ul>
+    </li>
+    <li>浏览器打开 http://localhost:8080/zizhuchanting/admin/dist/，看到登录页即启动成功。</li>
+  </ol>
+
+  <h2 id="section-2-3">2.3 停止步骤</h2>
+  <p>双击 D:\apache-tomcat-9.0.29\bin\shutdown.bat（或直接关闭 catalina.bat run 的命令行窗口）。</p>
+
+  <h2 id="section-2-4">2.4 重新打包部署（改了代码时）</h2>
+  <pre>cd D:\zizhuchanting
+set JAVA_HOME=C:\Jemeter\JDK1.8
+mvn -DskipTests clean package
+# 停止 Tomcat → 删除 webapps\zizhuchanting 目录和 zizhuchanting.war →
+# 复制 target\zizhuchanting.war 到 webapps → 再启动</pre>
+
+  <h1 id="section-3">3. 登录与账号</h1>
+  <h2 id="section-3-1">3.1 内置账号</h2>
+  <table>
+    <tr><th>角色</th><th>账号</th><th>密码</th><th>登录时角色选项</th></tr>
+    <tr><td>管理员</td><td>admin</td><td>admin</td><td>管理员</td></tr>
+    <tr><td>顾客示例</td><td>111</td><td>111</td><td>用户</td></tr>
+    <tr><td>顾客示例</td><td>222</td><td>222</td><td>用户</td></tr>
+  </table>
+
+  <h2 id="section-3-2">3.2 登录</h2>
+  <ol>
+    <li>打开系统地址，进入登录页；</li>
+    <li>输入账号、密码，<b>勾选对应角色</b>（管理员 / 用户）——角色选错会提示"权限不正常"；</li>
+    <li>点击【登录】，进入系统首页。</li>
+  </ol>
+
+  <h2 id="section-3-3">3.3 注册（仅顾客）</h2>
+  <p>登录页点击【注册】→ 填写名称、账号、密码、性别、手机号、头像 → 提交后用新账号以"用户"角色登录。</p>
+
+  <h2 id="section-3-4">3.4 修改密码</h2>
+  <p>登录后左侧菜单 → 个人中心分组 →【修改密码】，按提示输入原密码与新密码。</p>
+  <p class="src-note">提示：登录凭证 1 小时后过期，过期后任意操作会提示"请先登录"，重新登录即可。</p>
+
+  <h1 id="section-4">4. 管理员操作指南</h1>
+  <p>管理员登录后左侧菜单包含 6 个管理模块。列表页通用操作：</p>
+  <ul>
+    <li><b>查询</b>：顶部条件输入框（名称/编号等）后点击搜索；</li>
+    <li><b>新增</b>：点【新增】按钮，弹出表单填写后保存；</li>
+    <li><b>查看/修改</b>：行内【查看】【修改】按钮，弹窗展示，可编辑保存；</li>
+    <li><b>删除</b>：勾选行 →【删除】（支持批量）。</li>
+  </ul>
+
+  <h2 id="section-4-1">4.1 用户管理</h2>
+  <p>维护顾客账号。可新增顾客（名称、账号、密码、性别、手机号、头像）、修改、删除。删除顾客不会自动清理其历史订单。</p>
+
+  <h2 id="section-4-2">4.2 食物库存管理</h2>
+  <p>维护海鲜品种和库存数量（名称 + 数量）。<b>注意：库存条目 id 同时是"海鲜类型编码"</b>，海鲜菜品、订单明细都引用它。建议先建库存、再建海鲜菜品；库存数量不足时顾客点餐会被拒绝。</p>
+
+  <h2 id="section-4-3">4.3 海鲜展示管理</h2>
+  <p>维护餐厅在售海鲜菜品：海鲜名称（下拉，来源于库存表）、单价、图片、描述（富文本）。顾客端"点餐"列表即展示这些数据。</p>
+
+  <h2 id="section-4-4">4.4 未预定餐桌管理</h2>
+  <p>维护餐桌（名称、位置、是否已预订状态）。新增餐桌默认可被顾客预订。</p>
+
+  <h2 id="section-4-5">4.5 已预定餐桌管理</h2>
+  <p>查看当前顾客的预订记录（餐桌、用户、预订时间），支持删除（删除即强制释放餐桌）。</p>
+
+  <h2 id="section-4-6">4.6 流水管理</h2>
+  <p>查看所有订单流水：订单号、餐桌、下单用户、是否支付、总价、时间。可【修改】订单信息；已支付订单由系统在顾客支付时自动更新。</p>
+
+  <h1 id="section-5">5. 顾客（用户）操作指南</h1>
+  <p>顾客以"用户"角色登录后，菜单包含：海鲜展示管理（点餐）、未预定餐桌管理（预订）、已预定餐桌管理、订单管理。</p>
+
+  <h2 id="section-5-1">5.1 第一步：预订餐桌</h2>
+  <ol>
+    <li>进入【未预定餐桌管理】，查看空闲餐桌（"是否"列为"否"的为空闲）；</li>
+    <li>点击行内【预定】按钮 → 该餐桌标记为已预订，并记录在你的名下；</li>
+    <li>可在【已预定餐桌管理】中查看自己的预订。</li>
+  </ol>
+  <p class="src-note">注意：必须先预订餐桌才能点餐，否则点餐时会提示"请先预定餐桌后再预定菜品"。</p>
+
+  <h2 id="section-5-2">5.2 第二步：点餐</h2>
+  <ol>
+    <li>进入【海鲜展示管理】，浏览海鲜菜品（图片、单价、描述）；</li>
+    <li>点击行内【点餐】→ 填写每样海鲜的购买数量；</li>
+    <li>提交后系统自动：校验库存是否足够（不足会提示"××库存只剩 N 个"）；生成订单号，写入订单明细与订单流水（状态=未支付）；</li>
+    <li>进入【订单管理】可看到刚生成的未支付流水（总价、餐桌、时间）。</li>
+  </ol>
+
+  <h2 id="section-5-3">5.3 第三步：支付</h2>
+  <p>在【订单管理】中对自己未支付的流水点击【支付】：</p>
+  <ul>
+    <li>流水状态变为"已支付"；</li>
+    <li>所订餐桌自动释放，预订记录删除，餐桌回到可预订状态。</li>
+  </ul>
+
+  <h2 id="section-5-4">5.4 退出登录</h2>
+  <p>右上角头像/菜单 →【退出登录】（或直接关闭页面；1 小时后登录态自动失效）。</p>
+
+  <h1 id="section-6">6. 常见问题（FAQ）</h1>
+  <table>
+    <tr><th>现象</th><th>原因</th><th>解决办法</th></tr>
+    <tr><td>提示"请先登录"（401）</td><td>登录超 1 小时或未登录</td><td>重新登录</td></tr>
+    <tr><td>登录提示"权限不正常"</td><td>账号与所选角色不匹配（如 admin 选了"用户"）</td><td>重新选择正确角色</td></tr>
+    <tr><td>登录提示"账号或密码不正确"</td><td>密码错误或账号不存在</td><td>核对 3.1 的内置账号，或请管理员在用户管理中新建</td></tr>
+    <tr><td>点餐提示"请先预定餐桌后再预定菜品"</td><td>未预订餐桌</td><td>先到"未预定餐桌管理"预订</td></tr>
+    <tr><td>点餐提示"××库存只剩 N 个"</td><td>库存不足</td><td>请管理员在库存管理中补货</td></tr>
+    <tr><td>页面图片不显示</td><td>config 表轮播图仍是旧项目地址（fd-ssmj）</td><td>在数据库 config 表中把图片地址改为当前地址，或重新上传</td></tr>
+    <tr><td>上传的图片重启后丢失</td><td>上传文件保存在 Tomcat webapp 内，重新部署会被覆盖</td><td>重要图片请另存备份，或改造为外部存储</td></tr>
+    <tr><td>打不开系统（连接被拒绝）</td><td>Tomcat 未启动</td><td>按 2.2 启动 Tomcat</td></tr>
+    <tr><td>Tomcat 启动闪退</td><td>JAVA_HOME 未设置</td><td>设置 JAVA_HOME=C:\Jemeter\JDK1.8</td></tr>
+    <tr><td>页面能开但接口报数据库错误</td><td>MySQL 未启动 / 密码被改</td><td>启动 MySQL，核对 src/main/resources/config.properties 中配置</td></tr>
+  </table>
+
+  <h1 id="section-7">7. 故障排查速查</h1>
+  <ol>
+    <li><b>看 Tomcat 日志</b>：D:\apache-tomcat-9.0.29\logs\catalina.2026-XX-XX.log（启动错误）、localhost.2026-XX-XX.log（应用异常堆栈）；</li>
+    <li><b>确认端口占用</b>：命令行 netstat -ano | findstr 8080，若被占用修改 conf/server.xml 中 8080 端口；</li>
+    <li><b>确认数据库</b>：用 MySQL Workbench 连 127.0.0.1:3306，确认 zizhuchanting 库和 users、canzhuo 等表存在；</li>
+    <li><b>重新部署</b>：任何配置/代码改动后，按 2.4 重新打包部署才生效（config.properties 打包在 WAR 内）；</li>
+    <li><b>数据库重置</b>：在 MySQL Workbench 重新执行 D:\db.sql 可恢复初始数据（会清空现有数据，谨慎操作）。</li>
+  </ol>
+
+  <h1 id="section-8">8. 附：默认数据一览</h1>
+  <table>
+    <tr><th>数据</th><th>内容</th></tr>
+    <tr><td>管理员</td><td>admin / admin</td></tr>
+    <tr><td>顾客</td><td>111/111（小金）、222/222（小札）、123/123</td></tr>
+    <tr><td>餐桌</td><td>1~4 号餐桌（4 号为已预订示例）</td></tr>
+    <tr><td>海鲜菜品</td><td>4 条（单价 10~100 元）</td></tr>
+    <tr><td>库存</td><td>海鲜1~海鲜4（海鲜1、2 已售空为 0）</td></tr>
+    <tr><td>历史流水</td><td>7 条（含已支付与未支付示例）</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

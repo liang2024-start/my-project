@@ -1,0 +1,22 @@
+{
+  "bsonType": "object",
+  "required": ["openid"],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": "doc._id == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": { "description": "用户记录ID" },
+    "openid": { "bsonType": "string", "title": "微信openid" },
+    "unionid": { "bsonType": "string", "title": "微信unionid" },
+    "nickName": { "bsonType": "string", "title": "昵称" },
+    "avatarUrl": { "bsonType": "string", "title": "头像" },
+    "phone": { "bsonType": "string", "title": "手机号" },
+    "role": { "bsonType": "string", "title": "角色", "defaultValue": "user" },
+    "createTime": { "bsonType": "timestamp" },
+    "updateTime": { "bsonType": "timestamp" },
+    "lastLoginTime": { "bsonType": "timestamp" }
+  }
+}
